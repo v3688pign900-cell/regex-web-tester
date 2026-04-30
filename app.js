@@ -8,6 +8,7 @@ const flagM = document.getElementById('flag-m');
 const statusMessage = document.getElementById('status-message');
 const matchCount = document.getElementById('match-count');
 const highlightOutput = document.getElementById('highlight-output');
+const originalOutput = document.getElementById('original-output');
 const replaceOutput = document.getElementById('replace-output');
 const resultList = document.getElementById('result-list');
 const clearBtn = document.getElementById('clear-btn');
@@ -84,6 +85,7 @@ const exampleDataList = [
 ];
 
 let exampleIndex = 0;
+let lastMatches = [];
 
 function escapeHtml(text) {
   return text
@@ -113,8 +115,10 @@ function setStatus(message, type) {
 function renderEmptyState(message) {
   matchCount.textContent = 'Matches: 0';
   highlightOutput.innerHTML = `<span class="placeholder">${escapeHtml(message)}</span>`;
+  originalOutput.textContent = 'Original text will appear here.';
   replaceOutput.textContent = 'Replacement preview will appear here.';
   resultList.innerHTML = `<div class="empty-state">${escapeHtml(message)}</div>`;
+  lastMatches = [];
 }
 
 function updateLineNumbers() {
@@ -214,6 +218,7 @@ function getReplacePreviewText(text, regex) {
 }
 
 function renderReplacePreview(text, regex) {
+  originalOutput.textContent = text || 'Original text will appear here.';
   replaceOutput.textContent = getReplacePreviewText(text, regex);
 }
 
@@ -254,6 +259,7 @@ function buildResultText(matches) {
 }
 
 function renderResults(matches) {
+  lastMatches = matches;
   matchCount.textContent = `Matches: ${matches.length}`;
 
   if (matches.length === 0) {
@@ -277,7 +283,7 @@ function renderResults(matches) {
         : '';
 
       return `
-        <article class="result-item">
+        <article class="result-item" data-match-index="${index}" tabindex="0">
           <strong>#${index + 1} <span class="code-inline">${escapeHtml(match.text)}</span></strong>
           <div class="result-meta">start index: ${match.index} | end index: ${match.endIndex}</div>
           ${groupsMarkup}
@@ -286,6 +292,30 @@ function renderResults(matches) {
       `;
     })
     .join('');
+}
+
+function focusMatch(index) {
+  const match = lastMatches[index];
+  if (!match) {
+    return;
+  }
+
+  testText.focus();
+  testText.setSelectionRange(match.index, match.endIndex);
+
+  const beforeSelection = testText.value.slice(0, match.index);
+  const lineIndex = beforeSelection.split('\n').length - 1;
+  const lineHeight = parseFloat(getComputedStyle(testText).lineHeight) || 25;
+  const scrollTarget = Math.max(0, lineIndex * lineHeight - lineHeight * 2);
+  testText.scrollTop = scrollTarget;
+  syncLineNumberScroll();
+
+  resultList.querySelectorAll('.result-item').forEach((item) => item.classList.remove('is-active'));
+  const activeItem = resultList.querySelector(`[data-match-index="${index}"]`);
+  if (activeItem) {
+    activeItem.classList.add('is-active');
+    activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
 }
 
 function runRegexTest() {
@@ -312,12 +342,14 @@ function runRegexTest() {
     renderHighlight(text, matches);
     renderReplacePreview(text, regex);
     renderResults(matches);
-    setStatus(`Regex compiled successfully with flags: ${getFlags() || '(none)'}.`, 'success');
+    setStatus(`Regex compiled successfully with flags: ${getFlags() || '(none)'}. Tap a result card to jump to the match.`, 'success');
   } catch (error) {
     matchCount.textContent = 'Matches: 0';
     highlightOutput.innerHTML = '<span class="placeholder">Regex error. Please fix the pattern and try again.</span>';
+    originalOutput.textContent = testText.value || 'Original text will appear here.';
     replaceOutput.textContent = 'Replacement preview unavailable because the regex pattern is invalid.';
     resultList.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+    lastMatches = [];
     setStatus(`Regex error: ${error.message}`, 'error');
   }
 }
@@ -428,6 +460,24 @@ function loadExample() {
 });
 
 testText.addEventListener('scroll', syncLineNumberScroll);
+resultList.addEventListener('click', (event) => {
+  const item = event.target.closest('.result-item');
+  if (!item) {
+    return;
+  }
+  focusMatch(Number(item.dataset.matchIndex));
+});
+resultList.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter' && event.key !== ' ') {
+    return;
+  }
+  const item = event.target.closest('.result-item');
+  if (!item) {
+    return;
+  }
+  event.preventDefault();
+  focusMatch(Number(item.dataset.matchIndex));
+});
 clearBtn.addEventListener('click', clearAll);
 copyBtn.addEventListener('click', copyResults);
 exportBtn.addEventListener('click', exportResults);

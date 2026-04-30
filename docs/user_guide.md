@@ -17,9 +17,10 @@ Paste plain sample text into the **Test Text** area. Line numbers are shown on t
 - `i`: ignore letter case
 - `m`: multiline mode
 
+You can hover the flag labels to read a short tooltip.
 If `g` is not selected, the tool shows the first match only.
 
-## 4. Read match results
+## 4. Read and jump through match results
 The **Results** section shows:
 - total match count
 - highlighted matches inside the text preview
@@ -29,8 +30,10 @@ The **Results** section shows:
 - captured groups, if available
 - named groups, if available
 
-## 5. Use replace preview
-Enter text in **Replace Preview** to see how the current regex would replace matches. This is only a local preview and does not send data anywhere.
+Tap or click a result card to jump to that match inside the test text editor.
+
+## 5. Use replace diff preview
+Enter text in **Replace Preview** to compare the original content and replaced result side by side. This is only a local preview and does not send data anywhere.
 
 ## 6. Export files
 - Click **Export Result** to download the current result summary as `result.txt`

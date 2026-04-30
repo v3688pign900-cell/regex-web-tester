@@ -38,10 +38,16 @@
 
         <fieldset class="flags-group code-surface">
           <legend>Flags</legend>
-          <label><input type="checkbox" id="flag-g" /> g</label>
-          <label><input type="checkbox" id="flag-i" /> i</label>
-          <label><input type="checkbox" id="flag-m" /> m</label>
+          <label title="g = global. Find all matches in the text."><input type="checkbox" id="flag-g" /> g</label>
+          <label title="i = ignore case. Treat uppercase and lowercase as equal."><input type="checkbox" id="flag-i" /> i</label>
+          <label title="m = multiline. Make ^ and $ work line by line."><input type="checkbox" id="flag-m" /> m</label>
         </fieldset>
+
+        <div class="flag-help">
+          <span><strong>g</strong> find all matches</span>
+          <span><strong>i</strong> ignore case</span>
+          <span><strong>m</strong> multiline mode</span>
+        </div>
 
         <label class="field">
           <span class="field-label">Replace Preview (optional)</span>
@@ -103,10 +109,19 @@
 
         <div class="replace-panel">
           <div class="panel-header-row">
-            <h3>Replace Preview</h3>
-            <span class="field-hint">Preview only. No data leaves the browser.</span>
+            <h3>Replace Diff Preview</h3>
+            <span class="field-hint">Original and replaced output side by side.</span>
           </div>
-          <pre class="replace-output code-surface" id="replace-output">Replacement preview will appear here.</pre>
+          <div class="diff-grid">
+            <div class="diff-column">
+              <div class="diff-title">Original</div>
+              <pre class="replace-output code-surface" id="original-output">Original text will appear here.</pre>
+            </div>
+            <div class="diff-column">
+              <div class="diff-title">Replaced</div>
+              <pre class="replace-output code-surface" id="replace-output">Replacement preview will appear here.</pre>
+            </div>
+          </div>
         </div>
 
         <div class="result-list" id="result-list" aria-live="polite">

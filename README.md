@@ -21,13 +21,13 @@ Regex Web Tester is a lightweight browser-based tool for testing regular express
 ## Features
 - Regex pattern input
 - Test text input with line numbers
-- Flags: `g`, `i`, `m`
+- Flags: `g`, `i`, `m` with built-in guidance
 - Match count summary
-- Match list with start and end index
+- Click-to-jump match list with start and end index
 - Captured group display
 - Named group display
 - Highlighted matches in the source text
-- Replace preview with user-defined replacement text
+- Side-by-side original vs replaced preview
 - Export of match result summary and replace-all preview output
 - Regex error handling without page crash
 - Clear, Copy Result, Export Result, and Export Replace All actions

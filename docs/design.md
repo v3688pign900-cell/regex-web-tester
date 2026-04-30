@@ -2,16 +2,17 @@
 
 ## Layout
 - Header with tool name and privacy statement
-- Regex input area with flag controls and action buttons
+- Regex input area with flag controls, inline flag help, and action buttons
 - Optional replace preview input
 - Large IDE-style text area for sample text with line numbers
-- Result area with summary, highlight view, replace preview, and detailed match cards
+- Result area with summary, highlight view, side-by-side replace diff, and detailed match cards
 - Cheat sheet area for quick regex reference
 
 ## Responsive behavior
 - Desktop: input and text panels can sit in a two-column layout, results and cheat sheet span full width
 - Mobile: all sections stack into a single column
 - Buttons remain large enough for touch interaction
+- Spacing is tightened for small screens while preserving touch comfort
 - No horizontal scrolling
 
 ## Matching behavior
@@ -23,7 +24,8 @@
   - end index
   - captured groups if present
   - named groups if present
-- Replace preview applies the current regex and replacement string locally in the browser
+- Replace preview shows original and replaced output side by side
+- Match cards can move focus to the matching range inside the text area
 - Replace-all export downloads the replaced output as a local text file
 
 ## Error handling

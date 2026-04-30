@@ -39,9 +39,9 @@ body {
 .page {
   width: min(96vw, 1120px);
   margin: 0 auto;
-  padding: 24px 12px 40px;
+  padding: 20px 10px 32px;
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .hero,
@@ -53,12 +53,12 @@ body {
 }
 
 .hero {
-  padding: 24px;
+  padding: 22px;
 }
 
 .hero h1 {
   margin: 0 0 8px;
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
 }
 
 .hero p {
@@ -67,12 +67,12 @@ body {
 }
 
 .panel {
-  padding: 18px;
+  padding: 16px;
 }
 
 .controls-panel {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .panel-title-row,
@@ -140,7 +140,7 @@ input[type='checkbox']:focus-visible {
 .textarea-input {
   min-height: 300px;
   resize: vertical;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .flags-group {
@@ -153,20 +153,29 @@ input[type='checkbox']:focus-visible {
   gap: 14px;
 }
 
-.flags-group label {
+.flags-group label,
+.flag-help span {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
+.flag-help {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .actions {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 button {
-  min-height: 52px;
+  min-height: 54px;
   border: 0;
   border-radius: 14px;
   background: var(--accent);
@@ -176,6 +185,7 @@ button {
   cursor: pointer;
   touch-action: manipulation;
   transition: transform 0.08s ease, opacity 0.12s ease;
+  padding: 10px 12px;
 }
 
 button:hover {
@@ -259,7 +269,7 @@ button:active {
   color: var(--editor-line);
   background: #111827;
   white-space: pre;
-  font: 0.95rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font: 0.95rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
   user-select: none;
   overflow: hidden;
   border-right: 1px solid rgba(148, 163, 184, 0.12);
@@ -272,6 +282,7 @@ button:active {
   background: transparent;
   color: var(--editor-text);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 14px 14px 14px 16px;
 }
 
 .with-lines::placeholder {
@@ -299,8 +310,24 @@ button:active {
   margin-bottom: 16px;
 }
 
+.diff-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.diff-column {
+  display: grid;
+  gap: 8px;
+}
+
+.diff-title {
+  font-weight: 700;
+  color: var(--muted);
+}
+
 .replace-output {
-  min-height: 120px;
+  min-height: 140px;
   margin: 0;
   padding: 16px;
   white-space: pre-wrap;
@@ -326,6 +353,16 @@ button:active {
 .result-item {
   display: grid;
   gap: 8px;
+  cursor: pointer;
+}
+
+.result-item:hover {
+  background: #eef4fb;
+}
+
+.result-item.is-active {
+  outline: 2px solid rgba(37, 99, 235, 0.24);
+  background: #eaf2ff;
 }
 
 .result-meta {
@@ -394,17 +431,23 @@ button:active {
 }
 
 @media (max-width: 720px) {
-  .cheat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .cheat-grid,
+  .diff-grid {
+    grid-template-columns: 1fr;
   }
 
   .page {
     width: min(100vw, 1120px);
-    padding-inline: 10px;
+    padding-inline: 8px;
   }
 
   .editor-wrap {
-    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .panel,
+  .hero {
+    padding: 14px;
   }
 }
 
@@ -415,12 +458,17 @@ button:active {
   }
 
   button {
-    min-height: 56px;
+    min-height: 58px;
   }
 
   .panel,
   .hero {
-    padding: 16px;
     border-radius: 18px;
+  }
+
+  .with-lines,
+  .replace-output,
+  .highlight-box {
+    font-size: 0.95rem;
   }
 }
