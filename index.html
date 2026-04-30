@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Regex Web Tester runs regex matching locally in your browser with no data upload."
+    />
+    <title>Regex Web Tester</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <h1>Regex Web Tester</h1>
+        <p>Test regex safely in your browser. No text or pattern data is uploaded.</p>
+      </header>
+
+      <section class="panel controls-panel" aria-label="Regex input area">
+        <label class="field">
+          <span class="field-label">Regex Pattern</span>
+          <input
+            id="regex-input"
+            class="text-input"
+            type="text"
+            inputmode="text"
+            spellcheck="false"
+            autocomplete="off"
+            placeholder="Example: ERROR|WARN|FAIL"
+          />
+        </label>
+
+        <fieldset class="flags-group">
+          <legend>Flags</legend>
+          <label><input type="checkbox" id="flag-g" /> g</label>
+          <label><input type="checkbox" id="flag-i" /> i</label>
+          <label><input type="checkbox" id="flag-m" /> m</label>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="example-btn">Load Example</button>
+          <button type="button" id="clear-btn">Clear</button>
+          <button type="button" id="copy-btn">Copy Result</button>
+          <button type="button" id="export-btn">Export Result</button>
+        </div>
+
+        <p class="status" id="status-message" aria-live="polite">Ready.</p>
+      </section>
+
+      <section class="panel text-panel" aria-label="Test text input area">
+        <label class="field">
+          <span class="field-label">Test Text</span>
+          <textarea
+            id="test-text"
+            class="textarea-input"
+            spellcheck="false"
+            placeholder="Paste or type sample text here."
+          ></textarea>
+        </label>
+      </section>
+
+      <section class="panel results-panel" aria-label="Regex results area">
+        <div class="results-header">
+          <h2>Results</h2>
+          <p id="match-count">Matches: 0</p>
+        </div>
+
+        <div class="highlight-box" id="highlight-output" aria-label="Highlighted results">
+          <span class="placeholder">Matched text will be highlighted here.</span>
+        </div>
+
+        <div class="result-list" id="result-list" aria-live="polite">
+          <div class="empty-state">No matches yet.</div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
