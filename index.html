@@ -3,10 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Regex Web Tester runs regex matching locally in your browser with no data upload."
-    />
+    <meta name="description" content="Regex Web Tester runs regex matching locally in your browser with no data upload." />
     <title>Regex Web Tester</title>
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -38,25 +35,20 @@
             <span class="field-label">Sample Dataset</span>
             <select id="dataset-select" class="text-input" aria-label="Sample dataset selector"></select>
           </label>
-          <button type="button" id="load-dataset-btn" class="secondary-btn">Load Dataset</button>
+          <div class="dataset-buttons">
+            <button type="button" id="load-dataset-btn" class="secondary-btn">Load Dataset</button>
+            <button type="button" id="undo-dataset-btn" class="secondary-btn">Undo Sample Load</button>
+          </div>
         </div>
 
         <label class="field">
           <span class="field-label">Regex Pattern</span>
-          <input
-            id="regex-input"
-            class="text-input code-surface"
-            type="text"
-            inputmode="text"
-            spellcheck="false"
-            autocomplete="off"
-            placeholder="Example: ERROR|WARN|FAIL"
-            aria-describedby="regex-help regex-validator"
-          />
+          <input id="regex-input" class="text-input code-surface" type="text" inputmode="text" spellcheck="false" autocomplete="off" placeholder="Example: ERROR|WARN|FAIL" aria-describedby="regex-help regex-validator regex-performance" />
         </label>
 
         <p id="regex-help" class="field-hint">Enter a JavaScript-compatible regular expression pattern without outer slash delimiters.</p>
         <p id="regex-validator" class="validator" aria-live="polite">Validator: waiting for input.</p>
+        <p id="regex-performance" class="validator" aria-live="polite">Performance: no warning.</p>
 
         <fieldset class="flags-group code-surface">
           <legend>Flags</legend>
@@ -74,28 +66,21 @@
 
         <label class="field">
           <span class="field-label">Replace Preview (optional)</span>
-          <input
-            id="replace-input"
-            class="text-input code-surface"
-            type="text"
-            inputmode="text"
-            spellcheck="false"
-            autocomplete="off"
-            placeholder="Example: [MATCH]"
-          />
+          <input id="replace-input" class="text-input code-surface" type="text" inputmode="text" spellcheck="false" autocomplete="off" placeholder="Example: [MATCH]" />
         </label>
 
         <div class="actions">
           <button type="button" id="example-btn">Load Example</button>
           <button type="button" id="clear-btn">Clear</button>
           <button type="button" id="copy-btn">Copy Result</button>
-          <button type="button" id="export-btn">Export Result</button>
+          <button type="button" id="export-btn">Export TXT</button>
           <button type="button" id="export-replace-btn">Export Replace All</button>
         </div>
 
         <div class="actions secondary-actions">
           <button type="button" id="copy-highlighted-btn" class="secondary-btn">Copy Highlighted Text</button>
           <button type="button" id="copy-replaced-btn" class="secondary-btn">Copy Replaced Text</button>
+          <button type="button" id="export-json-btn" class="secondary-btn">Export JSON</button>
         </div>
 
         <p class="status" id="status-message" aria-live="polite">Ready.</p>
@@ -115,13 +100,7 @@
           </div>
           <div class="editor-wrap">
             <div class="line-numbers" id="line-numbers" aria-hidden="true">1</div>
-            <textarea
-              id="test-text"
-              class="textarea-input with-lines"
-              spellcheck="false"
-              placeholder="Paste or type sample text here."
-              aria-label="Test text editor"
-            ></textarea>
+            <textarea id="test-text" class="textarea-input with-lines" spellcheck="false" placeholder="Paste or type sample text here." aria-label="Test text editor"></textarea>
           </div>
         </div>
       </section>
@@ -130,6 +109,13 @@
         <div class="results-header">
           <h2>Results</h2>
           <p id="match-count">Matches: 0</p>
+        </div>
+
+        <div class="stats-grid" id="stats-grid" aria-label="Match statistics dashboard">
+          <article class="stat-card"><span class="stat-label">Visible</span><strong id="stat-visible">0</strong></article>
+          <article class="stat-card"><span class="stat-label">Zero-length</span><strong id="stat-zero">0</strong></article>
+          <article class="stat-card"><span class="stat-label">Unique values</span><strong id="stat-unique">0</strong></article>
+          <article class="stat-card"><span class="stat-label">Avg length</span><strong id="stat-avg">0</strong></article>
         </div>
 
         <div class="results-tools">
@@ -182,27 +168,6 @@
 
         <div class="result-list" id="result-list" aria-live="polite" role="list">
           <div class="empty-state">No matches yet.</div>
-        </div>
-      </section>
-
-      <section class="panel cheat-panel" aria-label="Regex cheat sheet">
-        <div class="results-header">
-          <h2>Regex Cheat Sheet</h2>
-          <p>Quick references</p>
-        </div>
-        <div class="cheat-grid">
-          <article class="cheat-card"><strong>\d</strong><span>digit</span></article>
-          <article class="cheat-card"><strong>\w</strong><span>word character</span></article>
-          <article class="cheat-card"><strong>.</strong><span>any character except newline</span></article>
-          <article class="cheat-card"><strong>*</strong><span>0 or more</span></article>
-          <article class="cheat-card"><strong>+</strong><span>1 or more</span></article>
-          <article class="cheat-card"><strong>?</strong><span>0 or 1</span></article>
-          <article class="cheat-card"><strong>^</strong><span>start of line</span></article>
-          <article class="cheat-card"><strong>$</strong><span>end of line</span></article>
-          <article class="cheat-card"><strong>[abc]</strong><span>one of a, b, c</span></article>
-          <article class="cheat-card"><strong>(...)</strong><span>capturing group</span></article>
-          <article class="cheat-card"><strong>(?&lt;name&gt;...)</strong><span>named group</span></article>
-          <article class="cheat-card"><strong>\b</strong><span>word boundary</span></article>
         </div>
       </section>
     </main>

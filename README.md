@@ -19,32 +19,19 @@ Regex Web Tester is a lightweight browser-based tool for testing regular express
 4. The tool will run locally in a browser without a server.
 
 ## Features
-- Regex pattern input
+- Match stats dashboard
+- Regex performance warning hint
+- Undo sample dataset load
+- Export as TXT and JSON
 - Built-in regex template chips
 - Sample dataset selector
 - Regex syntax validator hints
 - Test text input with line numbers
-- Flags: `g`, `i`, `m` with built-in guidance
-- Match count summary
-- Replace count summary
-- Search and filter for result cards
-- Result sorting and grouping
-- Zero-length match labeling
-- Click-to-jump match list with expand/collapse details
-- Captured group display
-- Named group display
-- Highlighted matches in the source text
+- Search, filter, sort, and group for result cards
 - Side-by-side original vs replaced preview
 - Copy highlighted text and replaced text
-- Export of match result summary and replace-all preview output
-- Keyboard shortcuts for example load, clear, and copy
 - Dark / light theme switch
-- Improved ARIA labels and keyboard navigation for result cards
-- Regex error handling without page crash
-- Clear, Copy Result, Export Result, and Export Replace All actions
-- Multiple generic example presets including URL, phone, and date formats
-- Built-in regex cheat sheet
-- Responsive layout for mobile, tablet, and desktop
+- No external network dependency
 
 ## Security statement
 All regex testing is performed locally in your browser. No text or regex data is uploaded.
