@@ -2,10 +2,10 @@
 
 ## Layout
 - Header with tool name, privacy statement, and theme switch
-- Regex input area with template chips, flag controls, inline flag help, and action buttons
+- Regex input area with template chips, dataset selector, validator hints, flag controls, inline flag help, and action buttons
 - Optional replace preview input
 - Large IDE-style text area for sample text with line numbers
-- Result area with summary, highlight view, side-by-side replace diff, and expandable match cards
+- Result area with filter box, summary, highlight view, side-by-side replace diff, and expandable match cards
 - Cheat sheet area for quick regex reference
 
 ## Responsive behavior
@@ -27,13 +27,17 @@
 - Replace preview shows original and replaced output side by side
 - Match cards can move focus to the matching range inside the text area
 - Match cards support expand/collapse for details
+- Result filtering works on match text and group values
 - Replace-all export downloads the replaced output as a local text file
 
-## Keyboard shortcuts
+## Keyboard shortcuts and accessibility
 - `Ctrl/Cmd + Enter`: load next example
 - `Ctrl/Cmd + L`: clear fields
 - `Ctrl/Cmd + Shift + C`: copy result summary
+- Result cards support keyboard focus, Enter/Space activation, and ArrowUp/ArrowDown movement
+- Important inputs include ARIA labels or descriptions
 
 ## Error handling
 - Invalid regex patterns are caught with `try/catch`
+- Validator hints explain common mistakes such as outer slashes or overly broad patterns
 - The page continues working and shows the error message in the status/result area

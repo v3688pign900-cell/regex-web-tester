@@ -12,10 +12,21 @@ Examples:
 ## 2. Use templates
 Tap a template chip such as **Status**, **IP**, **Email**, or **Date** to quickly fill the pattern and replacement fields.
 
-## 3. Paste test text
+## 3. Load a sample dataset
+Choose a sample dataset from the selector, then click **Load Dataset**.
+
+## 4. Check validator hints
+The validator line below the regex input gives quick feedback such as:
+- waiting for input
+- valid syntax
+- remove outer slash delimiters
+- pattern may be overly broad
+- syntax error details
+
+## 5. Paste test text
 Paste plain sample text into the **Test Text** area. Line numbers are shown on the left side for easier reading.
 
-## 4. Use flags
+## 6. Use flags
 - `g`: find all matches
 - `i`: ignore letter case
 - `m`: multiline mode
@@ -23,7 +34,7 @@ Paste plain sample text into the **Test Text** area. Line numbers are shown on t
 You can hover the flag labels to read a short tooltip.
 If `g` is not selected, the tool shows the first match only.
 
-## 5. Read and expand match results
+## 7. Read, filter, and expand match results
 The **Results** section shows:
 - total match count
 - highlighted matches inside the text preview
@@ -33,22 +44,24 @@ The **Results** section shows:
 - captured groups, if available
 - named groups, if available
 
+Use **Filter Results** to narrow the visible cards.
 Tap or click a result card to jump to that match inside the test text editor. Tap again to expand or collapse details.
 
-## 6. Use replace diff preview
+## 8. Use replace diff preview
 Enter text in **Replace Preview** to compare the original content and replaced result side by side. This is only a local preview and does not send data anywhere.
 
-## 7. Export files
+## 9. Export files
 - Click **Export Result** to download the current result summary as `result.txt`
 - Click **Export Replace All** to download replaced output as `replace_result.txt`
 
-## 8. Use keyboard shortcuts
+## 10. Use keyboard shortcuts
 - `Ctrl/Cmd + Enter`: load next example
 - `Ctrl/Cmd + L`: clear all fields
 - `Ctrl/Cmd + Shift + C`: copy result summary
+- In result cards, use `ArrowUp` and `ArrowDown` to move focus
 
-## 9. Switch theme
+## 11. Switch theme
 Use the theme button in the header to change between light and dark views.
 
-## 10. Handle regex errors
+## 12. Handle regex errors
 If the regex pattern is invalid, the tool shows the error message on screen. Update the pattern and the page will continue working without a refresh.

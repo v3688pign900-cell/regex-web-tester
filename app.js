@@ -18,6 +18,10 @@ const exportReplaceBtn = document.getElementById('export-replace-btn');
 const exampleBtn = document.getElementById('example-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const templateActions = document.getElementById('template-actions');
+const datasetSelect = document.getElementById('dataset-select');
+const loadDatasetBtn = document.getElementById('load-dataset-btn');
+const regexValidator = document.getElementById('regex-validator');
+const resultFilter = document.getElementById('result-filter');
 
 const templatePresets = [
   { label: 'Status', pattern: 'ERROR|WARN|FAIL', flags: { g: true, i: false, m: false }, replace: '[ALERT]' },
@@ -26,49 +30,28 @@ const templatePresets = [
   { label: 'Date', pattern: '(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})', flags: { g: true, i: false, m: false }, replace: '$<day>/$<month>/$<year>' }
 ];
 
-const exampleDataList = [
+const datasets = [
   {
-    label: 'Status words',
-    pattern: 'ERROR|WARN|FAIL',
-    flags: { g: true, i: false, m: false },
-    replace: '[ALERT]',
+    label: 'System Messages',
     text: ['INFO Startup complete', 'WARN Disk usage is above 80%', 'ERROR Unable to open file', 'FAIL Retry limit reached', 'INFO Shutdown complete'].join('\n')
   },
   {
-    label: 'IP address',
-    pattern: '\\b\\d{1,3}(\\.\\d{1,3}){3}\\b',
-    flags: { g: true, i: false, m: false },
-    replace: '[IP]',
-    text: ['Primary server: 192.168.10.25', 'Fallback server: 10.0.0.8', 'Comment: localhost is not an IP match here.'].join('\n')
+    label: 'Contacts',
+    text: ['Alice <alice@example.com>', 'Bob <bob.sales@test-mail.org>', 'Carol <carol_ops@sample.net>'].join('\n')
   },
   {
-    label: 'Email address',
-    pattern: '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}',
-    flags: { g: true, i: true, m: false },
-    replace: '[EMAIL]',
-    text: ['Contact alpha.team@example.com for support.', 'Backup contact: user_02@test-mail.org'].join('\n')
-  },
-  {
-    label: 'URL',
-    pattern: 'https?:\\/\\/[\\w.-]+(?:\\/[\\w./?%&=-]*)?',
-    flags: { g: true, i: true, m: false },
-    replace: '[URL]',
-    text: ['Docs: https://example.com/docs/start', 'Status: http://status.example.net/health?full=true'].join('\n')
-  },
-  {
-    label: 'Phone number',
-    pattern: '(?:\\+?\\d{1,3}[ -]?)?(?:\\(?\\d{2,4}\\)?[ -]?)?\\d{3,4}[ -]?\\d{4}',
-    flags: { g: true, i: false, m: false },
-    replace: '[PHONE]',
-    text: ['Call +1 555 123 4567 for sales.', 'Office line: (02) 2345-6789'].join('\n')
-  },
-  {
-    label: 'Date',
-    pattern: '(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})',
-    flags: { g: true, i: false, m: false },
-    replace: '$<day>/$<month>/$<year>',
-    text: ['Release date: 2026-04-30', 'Review date: 2026-05-12'].join('\n')
+    label: 'Network Notes',
+    text: ['Primary server: 192.168.10.25', 'Fallback server: 10.0.0.8', 'Docs: https://example.com/docs/start'].join('\n')
   }
+];
+
+const exampleDataList = [
+  { label: 'Status words', pattern: 'ERROR|WARN|FAIL', flags: { g: true, i: false, m: false }, replace: '[ALERT]', text: datasets[0].text },
+  { label: 'IP address', pattern: '\\b\\d{1,3}(\\.\\d{1,3}){3}\\b', flags: { g: true, i: false, m: false }, replace: '[IP]', text: datasets[2].text },
+  { label: 'Email address', pattern: '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}', flags: { g: true, i: true, m: false }, replace: '[EMAIL]', text: datasets[1].text },
+  { label: 'URL', pattern: 'https?:\\/\\/[\\w.-]+(?:\\/[\\w./?%&=-]*)?', flags: { g: true, i: true, m: false }, replace: '[URL]', text: datasets[2].text },
+  { label: 'Phone number', pattern: '(?:\\+?\\d{1,3}[ -]?)?(?:\\(?\\d{2,4}\\)?[ -]?)?\\d{3,4}[ -]?\\d{4}', flags: { g: true, i: false, m: false }, replace: '[PHONE]', text: ['Call +1 555 123 4567 for sales.', 'Office line: (02) 2345-6789'].join('\n') },
+  { label: 'Date', pattern: '(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})', flags: { g: true, i: false, m: false }, replace: '$<day>/$<month>/$<year>', text: ['Release date: 2026-04-30', 'Review date: 2026-05-12'].join('\n') }
 ];
 
 let exampleIndex = 0;
@@ -76,12 +59,7 @@ let lastMatches = [];
 let currentTheme = 'light';
 
 function escapeHtml(text) {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function getFlags() {
@@ -92,6 +70,12 @@ function setStatus(message, type) {
   statusMessage.textContent = message;
   statusMessage.className = 'status';
   if (type) statusMessage.classList.add(type);
+}
+
+function setValidator(message, type) {
+  regexValidator.textContent = `Validator: ${message}`;
+  regexValidator.className = 'validator';
+  if (type) regexValidator.classList.add(type);
 }
 
 function renderEmptyState(message) {
@@ -119,6 +103,28 @@ function buildRegex() {
 
 function cloneRegex(regex) {
   return new RegExp(regex.source, regex.flags);
+}
+
+function validateRegexPattern() {
+  const pattern = regexInput.value;
+  if (!pattern) {
+    setValidator('waiting for input.', '');
+    return;
+  }
+  if (pattern.startsWith('/') && pattern.endsWith('/')) {
+    setValidator('remove outer slash delimiters like /pattern/.', 'warn');
+    return;
+  }
+  if (pattern.includes('.*.*')) {
+    setValidator('pattern may be overly broad because it repeats wildcard sections.', 'warn');
+    return;
+  }
+  try {
+    buildRegex();
+    setValidator('pattern syntax looks valid.', 'ok');
+  } catch (error) {
+    setValidator(error.message, 'error');
+  }
 }
 
 function findMatches(regex, text) {
@@ -196,8 +202,9 @@ function renderResults(matches) {
     const namedGroupMarkup = namedEntries.length > 0
       ? `<div class="named-group-box"><strong class="group-title">Named groups</strong>${namedEntries.map(([name, value]) => `<div>${escapeHtml(name)}: <span class="code-inline">${escapeHtml(value === undefined ? '' : value)}</span></div>`).join('')}</div>`
       : '';
+    const searchIndex = [match.text, ...match.groups, ...Object.values(match.namedGroups)].join(' ').toLowerCase();
     return `
-      <article class="result-item" data-match-index="${index}" tabindex="0">
+      <article class="result-item" data-match-index="${index}" data-search-index="${escapeHtml(searchIndex)}" tabindex="0" role="listitem" aria-label="Match ${index + 1}">
         <strong>#${index + 1} <span class="code-inline">${escapeHtml(match.text)}</span></strong>
         <div class="result-meta">start index: ${match.index} | end index: ${match.endIndex}</div>
         <div class="result-details">
@@ -207,6 +214,25 @@ function renderResults(matches) {
       </article>
     `;
   }).join('');
+  applyResultFilter();
+}
+
+function applyResultFilter() {
+  const query = resultFilter.value.trim().toLowerCase();
+  const items = resultList.querySelectorAll('.result-item');
+  if (items.length === 0) return;
+  let visibleCount = 0;
+  items.forEach((item) => {
+    const haystack = item.dataset.searchIndex || '';
+    const show = !query || haystack.includes(query);
+    item.hidden = !show;
+    if (show) visibleCount += 1;
+  });
+  if (query) {
+    matchCount.textContent = `Matches: ${visibleCount} filtered / ${lastMatches.length} total`;
+  } else {
+    matchCount.textContent = `Matches: ${lastMatches.length}`;
+  }
 }
 
 function focusMatch(index) {
@@ -229,6 +255,7 @@ function focusMatch(index) {
 
 function toggleMatchDetails(item) {
   item.classList.toggle('is-open');
+  item.setAttribute('aria-expanded', item.classList.contains('is-open') ? 'true' : 'false');
 }
 
 function runRegexTest() {
@@ -236,6 +263,7 @@ function runRegexTest() {
   const text = testText.value;
   updateLineNumbers();
   syncLineNumberScroll();
+  validateRegexPattern();
   if (!pattern && !text) {
     setStatus('Ready.', '');
     renderEmptyState('No matches yet.');
@@ -252,7 +280,7 @@ function runRegexTest() {
     renderHighlight(text, matches);
     renderReplacePreview(text, regex);
     renderResults(matches);
-    setStatus('Regex compiled successfully. Click a result to jump, click again to expand details.', 'success');
+    setStatus('Regex compiled successfully. Use filter, keyboard nav, or result cards to inspect matches.', 'success');
   } catch (error) {
     matchCount.textContent = 'Matches: 0';
     highlightOutput.innerHTML = '<span class="placeholder">Regex error. Please fix the pattern and try again.</span>';
@@ -268,10 +296,12 @@ function clearAll() {
   regexInput.value = '';
   replaceInput.value = '';
   testText.value = '';
+  resultFilter.value = '';
   flagG.checked = false;
   flagI.checked = false;
   flagM.checked = false;
   updateLineNumbers();
+  validateRegexPattern();
   setStatus('Cleared.', '');
   renderEmptyState('No matches yet.');
 }
@@ -368,6 +398,18 @@ function renderTemplates() {
   templateActions.innerHTML = templatePresets.map((preset, index) => `<button type="button" class="template-chip" data-template-index="${index}">${escapeHtml(preset.label)}</button>`).join('');
 }
 
+function renderDatasets() {
+  datasetSelect.innerHTML = datasets.map((dataset, index) => `<option value="${index}">${escapeHtml(dataset.label)}</option>`).join('');
+}
+
+function loadDataset() {
+  const dataset = datasets[Number(datasetSelect.value)] || datasets[0];
+  testText.value = dataset.text;
+  updateLineNumbers();
+  setStatus(`Loaded dataset: ${dataset.label}.`, 'success');
+  runRegexTest();
+}
+
 function toggleTheme() {
   currentTheme = currentTheme === 'light' ? 'dark' : 'light';
   document.body.classList.toggle('theme-dark', currentTheme === 'dark');
@@ -379,6 +421,7 @@ function toggleTheme() {
   element.addEventListener('change', runRegexTest);
 });
 
+resultFilter.addEventListener('input', applyResultFilter);
 document.addEventListener('keydown', (event) => {
   const isMetaRun = (event.ctrlKey || event.metaKey) && event.key === 'Enter';
   const isMetaClear = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'l';
@@ -404,6 +447,18 @@ resultList.addEventListener('click', (event) => {
   toggleMatchDetails(item);
 });
 resultList.addEventListener('keydown', (event) => {
+  const items = Array.from(resultList.querySelectorAll('.result-item:not([hidden])'));
+  const currentIndex = items.indexOf(document.activeElement);
+  if (event.key === 'ArrowDown' && currentIndex >= 0) {
+    event.preventDefault();
+    (items[currentIndex + 1] || items[currentIndex]).focus();
+    return;
+  }
+  if (event.key === 'ArrowUp' && currentIndex >= 0) {
+    event.preventDefault();
+    (items[currentIndex - 1] || items[currentIndex]).focus();
+    return;
+  }
   if (event.key !== 'Enter' && event.key !== ' ') return;
   const item = event.target.closest('.result-item');
   if (!item) return;
@@ -417,6 +472,7 @@ templateActions.addEventListener('click', (event) => {
   if (!chip) return;
   applyTemplate(templatePresets[Number(chip.dataset.templateIndex)]);
 });
+loadDatasetBtn.addEventListener('click', loadDataset);
 clearBtn.addEventListener('click', clearAll);
 copyBtn.addEventListener('click', copyResults);
 exportBtn.addEventListener('click', exportResults);
@@ -425,5 +481,7 @@ exampleBtn.addEventListener('click', loadExample);
 themeToggle.addEventListener('click', toggleTheme);
 
 renderTemplates();
+renderDatasets();
 updateLineNumbers();
+validateRegexPattern();
 renderEmptyState('No matches yet.');

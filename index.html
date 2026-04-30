@@ -30,7 +30,15 @@
 
         <div class="template-bar">
           <span class="field-label">Templates</span>
-          <div class="template-actions" id="template-actions"></div>
+          <div class="template-actions" id="template-actions" role="toolbar" aria-label="Regex templates"></div>
+        </div>
+
+        <div class="dataset-bar">
+          <label class="field dataset-field">
+            <span class="field-label">Sample Dataset</span>
+            <select id="dataset-select" class="text-input" aria-label="Sample dataset selector"></select>
+          </label>
+          <button type="button" id="load-dataset-btn" class="secondary-btn">Load Dataset</button>
         </div>
 
         <label class="field">
@@ -43,8 +51,12 @@
             spellcheck="false"
             autocomplete="off"
             placeholder="Example: ERROR|WARN|FAIL"
+            aria-describedby="regex-help regex-validator"
           />
         </label>
+
+        <p id="regex-help" class="field-hint">Enter a JavaScript-compatible regular expression pattern without outer slash delimiters.</p>
+        <p id="regex-validator" class="validator" aria-live="polite">Validator: waiting for input.</p>
 
         <fieldset class="flags-group code-surface">
           <legend>Flags</legend>
@@ -103,6 +115,7 @@
               class="textarea-input with-lines"
               spellcheck="false"
               placeholder="Paste or type sample text here."
+              aria-label="Test text editor"
             ></textarea>
           </div>
         </div>
@@ -113,6 +126,11 @@
           <h2>Results</h2>
           <p id="match-count">Matches: 0</p>
         </div>
+
+        <label class="field">
+          <span class="field-label">Filter Results</span>
+          <input id="result-filter" class="text-input" type="text" placeholder="Filter by match text or group value" aria-label="Filter result cards" />
+        </label>
 
         <div class="highlight-box code-surface" id="highlight-output" aria-label="Highlighted results">
           <span class="placeholder">Matched text will be highlighted here.</span>
@@ -135,7 +153,7 @@
           </div>
         </div>
 
-        <div class="result-list" id="result-list" aria-live="polite">
+        <div class="result-list" id="result-list" aria-live="polite" role="list">
           <div class="empty-state">No matches yet.</div>
         </div>
       </section>
