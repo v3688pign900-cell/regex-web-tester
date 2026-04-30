@@ -1,352 +1,85 @@
 const $ = (id) => document.getElementById(id);
-const regexInput = $('regex-input');
-const replaceInput = $('replace-input');
-const testText = $('test-text');
-const lineNumbers = $('line-numbers');
-const flagG = $('flag-g');
-const flagI = $('flag-i');
-const flagM = $('flag-m');
-const statusMessage = $('status-message');
-const matchCount = $('match-count');
-const replaceCount = $('replace-count');
-const highlightOutput = $('highlight-output');
-const originalOutput = $('original-output');
-const replaceOutput = $('replace-output');
-const resultList = $('result-list');
-const regexValidator = $('regex-validator');
-const regexPerformance = $('regex-performance');
-const resultFilter = $('result-filter');
-const resultSort = $('result-sort');
-const resultGroup = $('result-group');
-const templateActions = $('template-actions');
-const datasetSelect = $('dataset-select');
-const statVisible = $('stat-visible');
-const statZero = $('stat-zero');
-const statUnique = $('stat-unique');
-const statAvg = $('stat-avg');
+const ids = ['regex-input','compare-regex-input','replace-input','test-text','line-numbers','flag-g','flag-i','flag-m','status-message','match-count','replace-count','highlight-output','original-output','replace-output','result-list','regex-validator','compare-validator','regex-performance','result-filter','result-sort','result-group','template-actions','dataset-select','compare-summary','named-group-summary','replace-history','stat-visible','stat-zero','stat-unique','stat-avg'];
+const el = Object.fromEntries(ids.map((id) => [id, $(id)]));
+const btn = { clear:$('clear-btn'), copy:$('copy-btn'), copyHighlighted:$('copy-highlighted-btn'), copyReplaced:$('copy-replaced-btn'), exportTxt:$('export-btn'), exportReplace:$('export-replace-btn'), exportJson:$('export-json-btn'), example:$('example-btn'), theme:$('theme-toggle'), loadDataset:$('load-dataset-btn'), undoDataset:$('undo-dataset-btn') };
 
-const controls = {
-  clear: $('clear-btn'), copy: $('copy-btn'), copyHighlighted: $('copy-highlighted-btn'), copyReplaced: $('copy-replaced-btn'),
-  exportTxt: $('export-btn'), exportReplace: $('export-replace-btn'), exportJson: $('export-json-btn'), example: $('example-btn'),
-  theme: $('theme-toggle'), loadDataset: $('load-dataset-btn'), undoDataset: $('undo-dataset-btn')
-};
-
-const templatePresets = [
-  { label: 'Status', pattern: 'ERROR|WARN|FAIL', flags: { g: true, i: false, m: false }, replace: '[ALERT]' },
-  { label: 'IP', pattern: '\\b\\d{1,3}(\\.\\d{1,3}){3}\\b', flags: { g: true, i: false, m: false }, replace: '[IP]' },
-  { label: 'Email', pattern: '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}', flags: { g: true, i: true, m: false }, replace: '[EMAIL]' },
-  { label: 'Date', pattern: '(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})', flags: { g: true, i: false, m: false }, replace: '$<day>/$<month>/$<year>' }
+const templates = [
+  { label:'Status', pattern:'ERROR|WARN|FAIL', flags:{g:true,i:false,m:false}, replace:'[ALERT]' },
+  { label:'IP', pattern:'\\b\\d{1,3}(\\.\\d{1,3}){3}\\b', flags:{g:true,i:false,m:false}, replace:'[IP]' },
+  { label:'Email', pattern:'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}', flags:{g:true,i:true,m:false}, replace:'[EMAIL]' },
+  { label:'Date', pattern:'(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})', flags:{g:true,i:false,m:false}, replace:'$<day>/$<month>/$<year>' }
 ];
 const datasets = [
-  { label: 'System Messages', text: ['INFO Startup complete', 'WARN Disk usage is above 80%', 'ERROR Unable to open file', 'FAIL Retry limit reached', 'INFO Shutdown complete'].join('\n') },
-  { label: 'Contacts', text: ['Alice <alice@example.com>', 'Bob <bob.sales@test-mail.org>', 'Carol <carol_ops@sample.net>'].join('\n') },
-  { label: 'Network Notes', text: ['Primary server: 192.168.10.25', 'Fallback server: 10.0.0.8', 'Docs: https://example.com/docs/start'].join('\n') }
+  { label:'System Messages', text:['INFO Startup complete','WARN Disk usage is above 80%','ERROR Unable to open file','FAIL Retry limit reached','INFO Shutdown complete'].join('\n') },
+  { label:'Contacts', text:['Alice <alice@example.com>','Bob <bob.sales@test-mail.org>','Carol <carol_ops@sample.net>'].join('\n') },
+  { label:'Network Notes', text:['Primary server: 192.168.10.25','Fallback server: 10.0.0.8','Docs: https://example.com/docs/start'].join('\n') }
 ];
 const examples = [
-  { label: 'Status words', pattern: 'ERROR|WARN|FAIL', flags: { g: true, i: false, m: false }, replace: '[ALERT]', text: datasets[0].text },
-  { label: 'IP address', pattern: '\\b\\d{1,3}(\\.\\d{1,3}){3}\\b', flags: { g: true, i: false, m: false }, replace: '[IP]', text: datasets[2].text },
-  { label: 'Email address', pattern: '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}', flags: { g: true, i: true, m: false }, replace: '[EMAIL]', text: datasets[1].text },
-  { label: 'Date', pattern: '(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})', flags: { g: true, i: false, m: false }, replace: '$<day>/$<month>/$<year>', text: ['Release date: 2026-04-30', 'Review date: 2026-05-12'].join('\n') }
+  { label:'Status words', pattern:'ERROR|WARN|FAIL', flags:{g:true,i:false,m:false}, replace:'[ALERT]', text:datasets[0].text },
+  { label:'IP address', pattern:'\\b\\d{1,3}(\\.\\d{1,3}){3}\\b', flags:{g:true,i:false,m:false}, replace:'[IP]', text:datasets[2].text },
+  { label:'Email address', pattern:'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}', flags:{g:true,i:true,m:false}, replace:'[EMAIL]', text:datasets[1].text },
+  { label:'Date', pattern:'(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})', flags:{g:true,i:false,m:false}, replace:'$<day>/$<month>/$<year>', text:['Release date: 2026-04-30','Review date: 2026-05-12'].join('\n') }
 ];
-
-let exampleIndex = 0;
-let lastMatches = [];
-let lastReplacePreviewText = '';
-let previousDatasetText = '';
-let theme = 'light';
-
-const escapeHtml = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-const getFlags = () => [flagG.checked && 'g', flagI.checked && 'i', flagM.checked && 'm'].filter(Boolean).join('');
-const setStatus = (message, type='') => { statusMessage.textContent = message; statusMessage.className = `status${type ? ` ${type}` : ''}`; };
-const setValidator = (el, message, type='') => { el.textContent = message; el.className = `validator${type ? ` ${type}` : ''}`; };
-const updateLineNumbers = () => { lineNumbers.textContent = Array.from({ length: Math.max(1, testText.value.split('\n').length) }, (_, i) => i + 1).join('\n'); };
-const syncLineNumberScroll = () => { lineNumbers.scrollTop = testText.scrollTop; };
-const buildRegex = () => regexInput.value ? new RegExp(regexInput.value, getFlags()) : null;
-const cloneRegex = (regex) => new RegExp(regex.source, regex.flags);
-
-function validateRegexPattern() {
-  const pattern = regexInput.value;
-  if (!pattern) return setValidator(regexValidator, 'Validator: waiting for input.');
-  if (pattern.startsWith('/') && pattern.endsWith('/')) return setValidator(regexValidator, 'Validator: remove outer slash delimiters like /pattern/.', 'warn');
-  try { buildRegex(); setValidator(regexValidator, 'Validator: pattern syntax looks valid.', 'ok'); }
-  catch (error) { setValidator(regexValidator, `Validator: ${error.message}`, 'error'); }
-}
-
-function updatePerformanceWarning() {
-  const pattern = regexInput.value;
-  if (!pattern) return setValidator(regexPerformance, 'Performance: no warning.');
-  const suspicious = /(\.\*){2,}|(\+\))\+|(\([^)]*[+*][^)]*\)[+*])/.test(pattern);
-  if (suspicious || testText.value.length > 20000) return setValidator(regexPerformance, 'Performance: pattern or input may be expensive on very large text.', 'warn');
-  return setValidator(regexPerformance, 'Performance: no obvious issue detected.', 'ok');
-}
-
-function findMatches(regex, text) {
-  const matches = [];
-  if (regex.global) {
-    regex.lastIndex = 0;
-    let found;
-    while ((found = regex.exec(text)) !== null) {
-      matches.push({ text: found[0], index: found.index, endIndex: found.index + found[0].length, groups: found.slice(1), namedGroups: found.groups || {}, zeroLength: found[0].length === 0 });
-      if (found[0] === '') regex.lastIndex += 1;
-    }
-  } else {
-    const found = regex.exec(text);
-    if (found) matches.push({ text: found[0], index: found.index, endIndex: found.index + found[0].length, groups: found.slice(1), namedGroups: found.groups || {}, zeroLength: found[0].length === 0 });
-  }
-  return matches;
-}
-
-function renderHighlight(text, matches) {
-  if (!text) return (highlightOutput.innerHTML = '<span class="placeholder">Paste text to see highlighted matches.</span>');
-  if (matches.length === 0) return (highlightOutput.textContent = text);
-  let cursor = 0;
-  const html = matches.map((match) => {
-    const before = escapeHtml(text.slice(cursor, match.index));
-    const label = escapeHtml(match.zeroLength ? '∅' : text.slice(match.index, match.endIndex) || '∅');
-    cursor = match.endIndex;
-    return `${before}<mark class="match-chip">${label}</mark>`;
-  }).join('') + escapeHtml(text.slice(cursor));
-  highlightOutput.innerHTML = html;
-}
-
-function getReplacePreviewText(text, regex) {
-  if (!text) return 'Replacement preview will appear here.';
-  if (!replaceInput.value) return 'Enter a replacement string to preview the replaced result.';
-  const safeRegex = regex.global ? cloneRegex(regex) : new RegExp(regex.source, regex.flags.includes('g') ? regex.flags : `${regex.flags}g`);
-  return text.replace(safeRegex, replaceInput.value);
-}
-
-function renderReplacePreview(text, regex, matches) {
-  originalOutput.textContent = text || 'Original text will appear here.';
-  lastReplacePreviewText = getReplacePreviewText(text, regex);
-  replaceOutput.textContent = lastReplacePreviewText;
-  replaceCount.textContent = `Replace count: ${matches.length}`;
-}
-
-function updateStats(matches, visibleCount) {
-  const unique = new Set(matches.map((m) => m.text)).size;
-  const avg = matches.length ? (matches.reduce((sum, m) => sum + m.text.length, 0) / matches.length).toFixed(1) : '0';
-  statVisible.textContent = String(visibleCount ?? matches.length);
-  statZero.textContent = String(matches.filter((m) => m.zeroLength).length);
-  statUnique.textContent = String(unique);
-  statAvg.textContent = String(avg);
-}
-
-function buildResultText(matches) {
-  const summary = { matchCount: matches.length, replaceCount: matches.length, zeroLengthCount: matches.filter((m) => m.zeroLength).length };
-  const lines = [`Matches: ${summary.matchCount}`, `Replace count: ${summary.replaceCount}`, `Zero-length count: ${summary.zeroLengthCount}`];
-  matches.forEach((m, i) => {
-    lines.push('', `#${i + 1}`, `match text: ${m.text}`, `start index: ${m.index}`, `end index: ${m.endIndex}`);
-    if (m.zeroLength) lines.push('zero length: true');
-    m.groups.forEach((g, gi) => lines.push(`group ${gi + 1}: ${g ?? ''}`));
-    Object.entries(m.namedGroups).forEach(([k, v]) => lines.push(`named group ${k}: ${v ?? ''}`));
-  });
-  if (replaceInput.value) lines.push('', 'replace preview:', lastReplacePreviewText);
-  return lines.join('\n');
-}
-
-function buildResultJson(matches) {
-  return JSON.stringify({
-    pattern: regexInput.value,
-    flags: getFlags(),
-    replacePreview: replaceInput.value,
-    stats: {
-      matchCount: matches.length,
-      replaceCount: matches.length,
-      zeroLengthCount: matches.filter((m) => m.zeroLength).length,
-      uniqueValues: new Set(matches.map((m) => m.text)).size
-    },
-    matches
-  }, null, 2);
-}
-
-function sortMatches(matches) {
-  const list = [...matches];
-  switch (resultSort.value) {
-    case 'index-desc': list.sort((a, b) => b.index - a.index); break;
-    case 'text-asc': list.sort((a, b) => a.text.localeCompare(b.text)); break;
-    case 'text-desc': list.sort((a, b) => b.text.localeCompare(a.text)); break;
-    case 'length-desc': list.sort((a, b) => b.text.length - a.text.length); break;
-    default: list.sort((a, b) => a.index - b.index);
-  }
-  return list;
-}
-
-function groupMatches(matches) {
-  if (resultGroup.value === 'none') return [{ label: '', items: matches }];
-  const map = new Map();
-  matches.forEach((m) => {
-    const key = resultGroup.value === 'length' ? `Length ${m.text.length}` : `Starts with ${m.text.charAt(0) || '∅'}`;
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(m);
-  });
-  return Array.from(map.entries()).map(([label, items]) => ({ label, items }));
-}
-
-function renderResults(matches) {
-  lastMatches = matches;
-  if (!matches.length) {
-    matchCount.textContent = 'Matches: 0';
-    updateStats(matches, 0);
-    resultList.innerHTML = '<div class="empty-state">No matches found.</div>';
-    return;
-  }
-  const grouped = groupMatches(sortMatches(matches));
-  resultList.innerHTML = grouped.map((group) => `
-    <section class="result-group">
-      ${group.label ? `<div class="result-group-title">${escapeHtml(group.label)}</div>` : ''}
-      ${group.items.map((m) => {
-        const idx = matches.indexOf(m);
-        const search = escapeHtml([m.text, ...m.groups, ...Object.values(m.namedGroups)].join(' ').toLowerCase());
-        const named = Object.entries(m.namedGroups).map(([k, v]) => `<div>${escapeHtml(k)}: <span class="code-inline">${escapeHtml(v ?? '')}</span></div>`).join('');
-        return `
-          <article class="result-item" data-match-index="${idx}" data-search-index="${search}" tabindex="0" role="listitem" aria-expanded="false">
-            <strong>#${idx + 1} <span class="code-inline">${escapeHtml(m.text || '∅')}</span></strong>
-            <div class="result-meta">start index: ${m.index} | end index: ${m.endIndex}${m.zeroLength ? ' | zero-length match' : ''}</div>
-            ${m.zeroLength ? '<span class="zero-length-badge">Zero-length</span>' : ''}
-            <div class="result-details">
-              ${m.groups.length ? `<ul>${m.groups.map((g, gi) => `<li>Group ${gi + 1}: <span class="code-inline">${escapeHtml(g ?? '')}</span></li>`).join('')}</ul>` : '<div class="result-meta">Matched group: none</div>'}
-              ${named ? `<div class="result-meta">Named groups</div><div>${named}</div>` : ''}
-            </div>
-          </article>`;
-      }).join('')}
-    </section>`).join('');
-  applyResultFilter();
-}
-
-function applyResultFilter() {
-  const query = resultFilter.value.trim().toLowerCase();
-  const items = [...resultList.querySelectorAll('.result-item')];
-  let visible = 0;
-  items.forEach((item) => {
-    const show = !query || (item.dataset.searchIndex || '').includes(query);
-    item.hidden = !show;
-    if (show) visible += 1;
-  });
-  [...resultList.querySelectorAll('.result-group')].forEach((group) => {
-    group.hidden = ![...group.querySelectorAll('.result-item')].some((item) => !item.hidden);
-  });
-  matchCount.textContent = query ? `Matches: ${visible} filtered / ${lastMatches.length} total` : `Matches: ${lastMatches.length}`;
-  updateStats(lastMatches, visible);
-}
-
-function runRegexTest() {
-  updateLineNumbers();
-  syncLineNumberScroll();
-  validateRegexPattern();
-  updatePerformanceWarning();
-  if (!regexInput.value && !testText.value) {
-    renderEmptyState('No matches yet.');
-    setStatus('Ready.');
-    return;
-  }
-  if (!regexInput.value) {
-    renderEmptyState('Enter a regex pattern to start testing.');
-    setStatus('Enter a regex pattern to start testing.');
-    return;
-  }
+let exampleIndex = 0, previousDatasetText = '', lastMatches = [], lastReplacePreview = '', replaceHistory = [], theme = 'light';
+const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const flags = () => [el['flag-g'].checked && 'g', el['flag-i'].checked && 'i', el['flag-m'].checked && 'm'].filter(Boolean).join('');
+const setText = (node, text, cls='validator') => { node.textContent = text; node.className = cls; };
+const buildRegex = (pattern) => pattern ? new RegExp(pattern, flags()) : null;
+const cloneRegex = (r) => new RegExp(r.source, r.flags);
+const updateLines = () => { el['line-numbers'].textContent = Array.from({length:Math.max(1, el['test-text'].value.split('\n').length)}, (_,i)=>i+1).join('\n'); };
+const setStatus = (msg, type='') => { el['status-message'].textContent = msg; el['status-message'].className = `status${type ? ` ${type}` : ''}`; };
+function validatePattern(input, out, label) { if (!input.value) return setText(out, `${label}: waiting for input.`); try { buildRegex(input.value); setText(out, `${label}: pattern syntax looks valid.`, 'validator ok'); } catch (e) { setText(out, `${label}: ${e.message}`, 'validator error'); } }
+function performanceHint() { const p = el['regex-input'].value; const suspicious = /(\.\*){2,}|(\([^)]*[+*][^)]*\)[+*])/.test(p) || el['test-text'].value.length > 20000; setText(el['regex-performance'], suspicious ? 'Performance: pattern or input may be expensive on very large text.' : 'Performance: no obvious issue detected.', suspicious ? 'validator warn' : 'validator ok'); }
+function findMatches(regex, text) { const out = []; if (!regex) return out; if (regex.global) { regex.lastIndex = 0; let m; while ((m = regex.exec(text)) !== null) { out.push({ text:m[0], index:m.index, endIndex:m.index+m[0].length, groups:m.slice(1), named:m.groups||{}, zero:m[0].length===0 }); if (m[0] === '') regex.lastIndex += 1; } } else { const m = regex.exec(text); if (m) out.push({ text:m[0], index:m.index, endIndex:m.index+m[0].length, groups:m.slice(1), named:m.groups||{}, zero:m[0].length===0 }); } return out; }
+function compareSummary(primary, compare) { if (!el['compare-regex-input'].value) { el['compare-summary'].textContent = 'Compare summary: disabled.'; return; } const same = primary.length === compare.length; const onlyPrimary = primary.filter((m) => !compare.some((c) => c.index === m.index && c.text === m.text)).length; const onlyCompare = compare.filter((m) => !primary.some((p) => p.index === m.index && p.text === m.text)).length; el['compare-summary'].textContent = `Compare summary: primary=${primary.length}, compare=${compare.length}, overlap=${same ? primary.length : Math.max(0, primary.length - onlyPrimary)}, primary-only=${onlyPrimary}, compare-only=${onlyCompare}`; }
+function renderNamedSummary(matches) { const groups = {}; matches.forEach((m) => Object.entries(m.named).forEach(([k,v]) => { if (!groups[k]) groups[k] = []; groups[k].push(v ?? ''); })); const names = Object.keys(groups); el['named-group-summary'].innerHTML = names.length ? names.map((name) => `<div><strong>${esc(name)}</strong>: ${esc([...new Set(groups[name])].join(', '))}</div>`).join('') : 'No named groups yet.'; }
+function renderHistory() { el['replace-history'].innerHTML = replaceHistory.length ? replaceHistory.slice(-6).reverse().map((h) => `<div><strong>${esc(h.pattern)}</strong> → ${esc(h.replace)} <span class="field-hint">(${h.count} matches)</span></div>`).join('') : 'No replace history yet.'; }
+function renderHighlight(text, matches) { if (!text) return el['highlight-output'].innerHTML = '<span class="placeholder">Matched text will be highlighted here.</span>'; if (!matches.length) return el['highlight-output'].textContent = text; let cursor = 0; el['highlight-output'].innerHTML = matches.map((m) => { const before = esc(text.slice(cursor, m.index)); const label = esc(m.zero ? '∅' : text.slice(m.index, m.endIndex) || '∅'); cursor = m.endIndex; return `${before}<mark class="match-chip">${label}</mark>`; }).join('') + esc(text.slice(cursor)); }
+function getReplaceText(text, regex) { if (!text) return 'Replacement preview will appear here.'; if (!el['replace-input'].value) return 'Enter a replacement string to preview the replaced result.'; const safe = regex.global ? cloneRegex(regex) : new RegExp(regex.source, regex.flags.includes('g') ? regex.flags : `${regex.flags}g`); return text.replace(safe, el['replace-input'].value); }
+function updateStats(matches, visible) { el['stat-visible'].textContent = String(visible); el['stat-zero'].textContent = String(matches.filter((m) => m.zero).length); el['stat-unique'].textContent = String(new Set(matches.map((m) => m.text)).size); el['stat-avg'].textContent = matches.length ? (matches.reduce((s,m)=>s+m.text.length,0)/matches.length).toFixed(1) : '0'; }
+function sortMatches(matches) { const list = [...matches]; const mode = el['result-sort'].value; if (mode === 'index-desc') list.sort((a,b)=>b.index-a.index); else if (mode === 'text-asc') list.sort((a,b)=>a.text.localeCompare(b.text)); else if (mode === 'text-desc') list.sort((a,b)=>b.text.localeCompare(a.text)); else if (mode === 'length-desc') list.sort((a,b)=>b.text.length-a.text.length); else list.sort((a,b)=>a.index-b.index); return list; }
+function groupMatches(matches) { const mode = el['result-group'].value; if (mode === 'none') return [{label:'', items:matches}]; const map = new Map(); matches.forEach((m) => { const key = mode === 'length' ? `Length ${m.text.length}` : `Starts with ${m.text.charAt(0) || '∅'}`; if (!map.has(key)) map.set(key, []); map.get(key).push(m); }); return [...map.entries()].map(([label, items]) => ({label, items})); }
+function renderResults(matches) { lastMatches = matches; if (!matches.length) { el['match-count'].textContent = 'Matches: 0'; el['result-list'].innerHTML = '<div class="empty-state">No matches found.</div>'; updateStats(matches, 0); renderNamedSummary(matches); return; } const grouped = groupMatches(sortMatches(matches)); el['result-list'].innerHTML = grouped.map((g) => `<section class="result-group">${g.label ? `<div class="result-group-title">${esc(g.label)}</div>` : ''}${g.items.map((m) => { const idx = matches.indexOf(m); const search = esc([m.text, ...m.groups, ...Object.values(m.named)].join(' ').toLowerCase()); return `<article class="result-item" data-search-index="${search}" data-match-index="${idx}" tabindex="0"><strong>#${idx+1} <span class="code-inline">${esc(m.text || '∅')}</span></strong><div class="result-meta">start index: ${m.index} | end index: ${m.endIndex}${m.zero ? ' | zero-length match' : ''}</div>${m.zero ? '<span class="field-hint">Zero-length</span>' : ''}<div class="result-details">${m.groups.length ? `<ul>${m.groups.map((v,i)=>`<li>Group ${i+1}: ${esc(v ?? '')}</li>`).join('')}</ul>` : '<div class="result-meta">Matched group: none</div>'}</div></article>`; }).join('')}</section>`).join(''); applyFilter(); renderNamedSummary(matches); }
+function applyFilter() { const q = el['result-filter'].value.trim().toLowerCase(); const items = [...el['result-list'].querySelectorAll('.result-item')]; let visible = 0; items.forEach((item) => { const show = !q || (item.dataset.searchIndex || '').includes(q); item.hidden = !show; if (show) visible += 1; }); [...el['result-list'].querySelectorAll('.result-group')].forEach((g) => g.hidden = ![...g.querySelectorAll('.result-item')].some((i) => !i.hidden)); el['match-count'].textContent = q ? `Matches: ${visible} filtered / ${lastMatches.length} total` : `Matches: ${lastMatches.length}`; updateStats(lastMatches, visible); }
+function buildTxt(matches) { return [`Matches: ${matches.length}`, `Replace count: ${matches.length}`, ...matches.flatMap((m,i)=>['', `#${i+1}`, `match text: ${m.text}`, `start index: ${m.index}`, `end index: ${m.endIndex}`, ...(m.zero ? ['zero length: true'] : [])]) , ...(el['replace-input'].value ? ['', 'replace preview:', lastReplacePreview] : [])].join('\n'); }
+function buildJson(matches) { return JSON.stringify({ pattern: el['regex-input'].value, comparePattern: el['compare-regex-input'].value, flags: flags(), replace: el['replace-input'].value, matches }, null, 2); }
+function download(name, content) { const blob = new Blob([content], {type:'text/plain;charset=utf-8'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+async function copy(text, ok) { if (!navigator.clipboard?.writeText) throw new Error('Clipboard API is not available in this browser.'); await navigator.clipboard.writeText(text); setStatus(ok, 'success'); }
+function run() {
+  updateLines(); el['line-numbers'].scrollTop = el['test-text'].scrollTop; validatePattern(el['regex-input'], el['regex-validator'], 'Validator'); validatePattern(el['compare-regex-input'], el['compare-validator'], 'Compare validator'); performanceHint();
+  if (!el['regex-input'].value && !el['test-text'].value) { el['highlight-output'].innerHTML = '<span class="placeholder">Matched text will be highlighted here.</span>'; el['original-output'].textContent = 'Original text will appear here.'; el['replace-output'].textContent = 'Replacement preview will appear here.'; el['replace-history'].textContent = replaceHistory.length ? el['replace-history'].textContent : 'No replace history yet.'; el['named-group-summary'].textContent = 'No named groups yet.'; el['result-list'].innerHTML = '<div class="empty-state">No matches yet.</div>'; el['match-count'].textContent = 'Matches: 0'; el['replace-count'].textContent = 'Replace count: 0'; el['compare-summary'].textContent = 'Compare summary: disabled.'; updateStats([], 0); setStatus('Ready.'); return; }
+  if (!el['regex-input'].value) { setStatus('Enter a regex pattern to start testing.'); return; }
   try {
-    const regex = buildRegex();
-    const matches = findMatches(cloneRegex(regex), testText.value);
-    renderHighlight(testText.value, matches);
-    renderReplacePreview(testText.value, regex, matches);
-    renderResults(matches);
-    setStatus('Regex compiled successfully. Sort, group, filter, or export results as needed.', 'success');
-  } catch (error) {
-    renderEmptyState(error.message);
-    replaceOutput.textContent = 'Replacement preview unavailable because the regex pattern is invalid.';
-    setStatus(`Regex error: ${error.message}`, 'error');
-  }
+    const primary = buildRegex(el['regex-input'].value); const primaryMatches = findMatches(cloneRegex(primary), el['test-text'].value);
+    const compare = el['compare-regex-input'].value ? buildRegex(el['compare-regex-input'].value) : null;
+    const compareMatches = compare ? findMatches(cloneRegex(compare), el['test-text'].value) : [];
+    renderHighlight(el['test-text'].value, primaryMatches);
+    lastReplacePreview = getReplaceText(el['test-text'].value, primary); el['original-output'].textContent = el['test-text'].value || 'Original text will appear here.'; el['replace-output'].textContent = lastReplacePreview; el['replace-count'].textContent = `Replace count: ${primaryMatches.length}`;
+    renderResults(primaryMatches); compareSummary(primaryMatches, compareMatches);
+    if (el['replace-input'].value) { const latest = { pattern: el['regex-input'].value, replace: el['replace-input'].value, count: primaryMatches.length }; const same = replaceHistory[replaceHistory.length - 1]; if (!same || JSON.stringify(same) !== JSON.stringify(latest)) { replaceHistory.push(latest); replaceHistory = replaceHistory.slice(-12); } }
+    renderHistory();
+    setStatus('Regex compiled successfully. Compare, review history, or export results as needed.', 'success');
+  } catch (err) { setStatus(`Regex error: ${err.message}`, 'error'); }
 }
+function loadExample() { const ex = examples[exampleIndex]; el['regex-input'].value = ex.pattern; el['replace-input'].value = ex.replace; el['flag-g'].checked = ex.flags.g; el['flag-i'].checked = ex.flags.i; el['flag-m'].checked = ex.flags.m; el['test-text'].value = ex.text; exampleIndex = (exampleIndex + 1) % examples.length; run(); }
+function applyTemplate(i) { const t = templates[i]; el['regex-input'].value = t.pattern; el['replace-input'].value = t.replace; el['flag-g'].checked = t.flags.g; el['flag-i'].checked = t.flags.i; el['flag-m'].checked = t.flags.m; run(); }
+function loadDataset() { previousDatasetText = el['test-text'].value; el['test-text'].value = datasets[Number(el['dataset-select'].value)]?.text || datasets[0].text; run(); }
+function undoDataset() { el['test-text'].value = previousDatasetText; run(); }
+function clearAll() { ['regex-input','compare-regex-input','replace-input','test-text','result-filter'].forEach((id) => el[id].value = ''); el['flag-g'].checked = false; el['flag-i'].checked = false; el['flag-m'].checked = false; el['result-sort'].value = 'index-asc'; el['result-group'].value = 'none'; run(); }
+function toggleTheme() { theme = theme === 'light' ? 'dark' : 'light'; document.body.classList.toggle('theme-dark', theme === 'dark'); btn.theme.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark'; }
 
-function clearAll() {
-  regexInput.value = ''; replaceInput.value = ''; testText.value = ''; resultFilter.value = ''; resultSort.value = 'index-asc'; resultGroup.value = 'none';
-  flagG.checked = false; flagI.checked = false; flagM.checked = false;
-  updateLineNumbers(); validateRegexPattern(); updatePerformanceWarning(); renderEmptyState('No matches yet.'); setStatus('Cleared.');
-}
-
-async function copyText(text, okMessage) {
-  if (!navigator.clipboard?.writeText) throw new Error('Clipboard API is not available in this browser.');
-  await navigator.clipboard.writeText(text);
-  setStatus(okMessage, 'success');
-}
-
-function downloadFile(name, content) {
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-}
-
-function loadExample() {
-  const ex = examples[exampleIndex];
-  regexInput.value = ex.pattern; replaceInput.value = ex.replace; flagG.checked = ex.flags.g; flagI.checked = ex.flags.i; flagM.checked = ex.flags.m; testText.value = ex.text;
-  exampleIndex = (exampleIndex + 1) % examples.length;
-  runRegexTest();
-  setStatus(`Loaded generic example: ${ex.label}.`, 'success');
-}
-
-function applyTemplate(index) {
-  const p = templatePresets[index];
-  regexInput.value = p.pattern; replaceInput.value = p.replace; flagG.checked = p.flags.g; flagI.checked = p.flags.i; flagM.checked = p.flags.m;
-  runRegexTest();
-  setStatus(`Applied template: ${p.label}.`, 'success');
-}
-
-function loadDataset() {
-  previousDatasetText = testText.value;
-  testText.value = datasets[Number(datasetSelect.value)]?.text || datasets[0].text;
-  runRegexTest();
-  setStatus(`Loaded dataset: ${datasets[Number(datasetSelect.value)]?.label || datasets[0].label}.`, 'success');
-}
-
-function undoDatasetLoad() {
-  testText.value = previousDatasetText;
-  runRegexTest();
-  setStatus('Restored previous text before sample load.', 'success');
-}
-
-function toggleTheme() {
-  theme = theme === 'light' ? 'dark' : 'light';
-  document.body.classList.toggle('theme-dark', theme === 'dark');
-  controls.theme.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
-}
-
-templateActions.innerHTML = templatePresets.map((p, i) => `<button type="button" class="template-chip" data-template-index="${i}">${escapeHtml(p.label)}</button>`).join('');
-datasetSelect.innerHTML = datasets.map((d, i) => `<option value="${i}">${escapeHtml(d.label)}</option>`).join('');
-
-[regexInput, replaceInput, testText, flagG, flagI, flagM, resultFilter, resultSort, resultGroup].forEach((el) => {
-  el.addEventListener('input', runRegexTest);
-  el.addEventListener('change', runRegexTest);
-});
-
-testText.addEventListener('scroll', syncLineNumberScroll);
-templateActions.addEventListener('click', (e) => { const chip = e.target.closest('[data-template-index]'); if (chip) applyTemplate(Number(chip.dataset.templateIndex)); });
-controls.loadDataset.addEventListener('click', loadDataset);
-controls.undoDataset.addEventListener('click', undoDatasetLoad);
-controls.example.addEventListener('click', loadExample);
-controls.clear.addEventListener('click', clearAll);
-controls.copy.addEventListener('click', async () => { try { await copyText(buildResultText(lastMatches), 'Result copied to clipboard.'); } catch (e) { setStatus(`Copy failed: ${e.message}`, 'error'); } });
-controls.copyHighlighted.addEventListener('click', async () => { try { await copyText(highlightOutput.innerText.trim(), 'Highlighted text copied to clipboard.'); } catch (e) { setStatus(`Copy failed: ${e.message}`, 'error'); } });
-controls.copyReplaced.addEventListener('click', async () => { try { await copyText(lastReplacePreviewText, 'Replaced text copied to clipboard.'); } catch (e) { setStatus(`Copy failed: ${e.message}`, 'error'); } });
-controls.exportTxt.addEventListener('click', () => downloadFile('result.txt', buildResultText(lastMatches)));
-controls.exportReplace.addEventListener('click', () => downloadFile('replace_result.txt', lastReplacePreviewText));
-controls.exportJson.addEventListener('click', () => downloadFile('result.json', buildResultJson(lastMatches)));
-controls.theme.addEventListener('click', toggleTheme);
-resultList.addEventListener('click', (e) => {
-  const item = e.target.closest('.result-item');
-  if (!item) return;
-  item.classList.toggle('is-open');
-  item.setAttribute('aria-expanded', item.classList.contains('is-open') ? 'true' : 'false');
-});
-
-document.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); loadExample(); }
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') { e.preventDefault(); clearAll(); }
-  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') { e.preventDefault(); copyText(buildResultText(lastMatches), 'Result copied to clipboard.').catch((err) => setStatus(`Copy failed: ${err.message}`, 'error')); }
-});
-
-updateLineNumbers();
-validateRegexPattern();
-updatePerformanceWarning();
-renderEmptyState('No matches yet.');
+el['template-actions'].innerHTML = templates.map((t,i)=>`<button type="button" class="template-chip" data-template-index="${i}">${esc(t.label)}</button>`).join('');
+el['dataset-select'].innerHTML = datasets.map((d,i)=>`<option value="${i}">${esc(d.label)}</option>`).join('');
+['regex-input','compare-regex-input','replace-input','test-text','result-filter','result-sort','result-group'].forEach((id) => { el[id].addEventListener('input', run); el[id].addEventListener('change', run); });
+el['test-text'].addEventListener('scroll', () => { el['line-numbers'].scrollTop = el['test-text'].scrollTop; });
+el['template-actions'].addEventListener('click', (e) => { const chip = e.target.closest('[data-template-index]'); if (chip) applyTemplate(Number(chip.dataset.templateIndex)); });
+btn.loadDataset.addEventListener('click', loadDataset); btn.undoDataset.addEventListener('click', undoDataset); btn.example.addEventListener('click', loadExample); btn.clear.addEventListener('click', clearAll); btn.theme.addEventListener('click', toggleTheme);
+btn.copy.addEventListener('click', () => copy(buildTxt(lastMatches), 'Result copied to clipboard.').catch((e)=>setStatus(`Copy failed: ${e.message}`, 'error')));
+btn.copyHighlighted.addEventListener('click', () => copy(el['highlight-output'].innerText.trim(), 'Highlighted text copied to clipboard.').catch((e)=>setStatus(`Copy failed: ${e.message}`, 'error')));
+btn.copyReplaced.addEventListener('click', () => copy(lastReplacePreview, 'Replaced text copied to clipboard.').catch((e)=>setStatus(`Copy failed: ${e.message}`, 'error')));
+btn.exportTxt.addEventListener('click', () => download('result.txt', buildTxt(lastMatches)));
+btn.exportJson.addEventListener('click', () => download('result.json', buildJson(lastMatches)));
+btn.exportReplace.addEventListener('click', () => download('replace_result.txt', lastReplacePreview));
+el['result-list'].addEventListener('click', (e) => { const item = e.target.closest('.result-item'); if (item) item.classList.toggle('is-open'); });
+document.addEventListener('keydown', (e) => { if ((e.ctrlKey||e.metaKey) && e.key === 'Enter') { e.preventDefault(); loadExample(); } });
+run();

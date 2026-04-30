@@ -41,13 +41,20 @@
           </div>
         </div>
 
-        <label class="field">
-          <span class="field-label">Regex Pattern</span>
-          <input id="regex-input" class="text-input code-surface" type="text" inputmode="text" spellcheck="false" autocomplete="off" placeholder="Example: ERROR|WARN|FAIL" aria-describedby="regex-help regex-validator regex-performance" />
-        </label>
+        <div class="compare-grid">
+          <label class="field">
+            <span class="field-label">Primary Regex Pattern</span>
+            <input id="regex-input" class="text-input code-surface" type="text" inputmode="text" spellcheck="false" autocomplete="off" placeholder="Example: ERROR|WARN|FAIL" aria-describedby="regex-help regex-validator regex-performance" />
+          </label>
+          <label class="field">
+            <span class="field-label">Compare Regex Pattern</span>
+            <input id="compare-regex-input" class="text-input code-surface" type="text" inputmode="text" spellcheck="false" autocomplete="off" placeholder="Optional compare pattern" aria-describedby="compare-validator" />
+          </label>
+        </div>
 
-        <p id="regex-help" class="field-hint">Enter a JavaScript-compatible regular expression pattern without outer slash delimiters.</p>
+        <p id="regex-help" class="field-hint">Enter JavaScript-compatible regular expression patterns without outer slash delimiters.</p>
         <p id="regex-validator" class="validator" aria-live="polite">Validator: waiting for input.</p>
+        <p id="compare-validator" class="validator" aria-live="polite">Compare validator: waiting for input.</p>
         <p id="regex-performance" class="validator" aria-live="polite">Performance: no warning.</p>
 
         <fieldset class="flags-group code-surface">
@@ -56,13 +63,6 @@
           <label title="i = ignore case. Treat uppercase and lowercase as equal."><input type="checkbox" id="flag-i" /> i</label>
           <label title="m = multiline. Make ^ and $ work line by line."><input type="checkbox" id="flag-m" /> m</label>
         </fieldset>
-
-        <div class="flag-help">
-          <span><strong>g</strong> find all matches</span>
-          <span><strong>i</strong> ignore case</span>
-          <span><strong>m</strong> multiline mode</span>
-          <span><strong>Shortcut</strong> Ctrl/Cmd + Enter run example cycle</span>
-        </div>
 
         <label class="field">
           <span class="field-label">Replace Preview (optional)</span>
@@ -111,12 +111,14 @@
           <p id="match-count">Matches: 0</p>
         </div>
 
-        <div class="stats-grid" id="stats-grid" aria-label="Match statistics dashboard">
+        <div class="stats-grid" aria-label="Match statistics dashboard">
           <article class="stat-card"><span class="stat-label">Visible</span><strong id="stat-visible">0</strong></article>
           <article class="stat-card"><span class="stat-label">Zero-length</span><strong id="stat-zero">0</strong></article>
           <article class="stat-card"><span class="stat-label">Unique values</span><strong id="stat-unique">0</strong></article>
           <article class="stat-card"><span class="stat-label">Avg length</span><strong id="stat-avg">0</strong></article>
         </div>
+
+        <div class="compare-summary" id="compare-summary">Compare summary: disabled.</div>
 
         <div class="results-tools">
           <label class="field results-tool-field">
@@ -149,6 +151,14 @@
           <span class="placeholder">Matched text will be highlighted here.</span>
         </div>
 
+        <div class="named-summary-panel">
+          <div class="panel-header-row">
+            <h3>Named Group Summary</h3>
+            <span class="field-hint">Aggregated values from current results.</span>
+          </div>
+          <div id="named-group-summary" class="named-group-summary">No named groups yet.</div>
+        </div>
+
         <div class="replace-panel">
           <div class="panel-header-row">
             <h3>Replace Diff Preview</h3>
@@ -164,6 +174,14 @@
               <pre class="replace-output code-surface" id="replace-output">Replacement preview will appear here.</pre>
             </div>
           </div>
+        </div>
+
+        <div class="history-panel">
+          <div class="panel-header-row">
+            <h3>Replace History</h3>
+            <span class="field-hint">Current page only. No storage.</span>
+          </div>
+          <div id="replace-history" class="replace-history">No replace history yet.</div>
         </div>
 
         <div class="result-list" id="result-list" aria-live="polite" role="list">

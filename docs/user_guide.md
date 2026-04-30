@@ -1,29 +1,17 @@
 # User Guide
 
-## 1. Enter a regex pattern
-Type a JavaScript-compatible regex pattern without outer slashes.
+## Compare two regex patterns
+- Enter the main pattern in **Primary Regex Pattern**
+- Optionally enter another pattern in **Compare Regex Pattern**
+- The compare summary shows counts and overlap style differences
 
-## 2. Load templates or datasets
-- Use template chips to fill common regex patterns
-- Use the sample dataset selector to load generic text
-- Use **Undo Sample Load** to restore the previous text
+## Replace history
+- Every replace preview is kept only in current page memory
+- Reloading the page clears the history
 
-## 3. Read validator and performance hints
-- Validator explains syntax issues or common mistakes
-- Performance hint warns when a pattern may be expensive on large input
+## Named group summary
+- When matches contain named groups, values are aggregated in the summary panel
 
-## 4. Inspect result stats
-The dashboard shows:
-- visible result count
-- zero-length match count
-- unique match values
-- average match length
-
-## 5. Export and copy
-- **Export TXT** downloads `result.txt`
-- **Export JSON** downloads `result.json`
-- **Export Replace All** downloads `replace_result.txt`
-- Copy buttons can copy result summary, highlighted text, or replaced text
-
-## 6. Privacy
-All regex testing is local to your browser. No text or regex data is uploaded.
+## Mobile use
+- The layout collapses into single-column sections on small screens
+- Buttons keep large touch targets
