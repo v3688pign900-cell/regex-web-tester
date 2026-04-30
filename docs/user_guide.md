@@ -34,23 +34,29 @@ Paste plain sample text into the **Test Text** area. Line numbers are shown on t
 You can hover the flag labels to read a short tooltip.
 If `g` is not selected, the tool shows the first match only.
 
-## 7. Read, filter, and expand match results
+## 7. Read, filter, sort, group, and expand match results
 The **Results** section shows:
 - total match count
+- replace count
 - highlighted matches inside the text preview
 - matched text for each hit
 - start index
 - end index
+- zero-length badge when applicable
 - captured groups, if available
 - named groups, if available
 
 Use **Filter Results** to narrow the visible cards.
+Use **Sort Results** and **Group By** to reorganize the list.
 Tap or click a result card to jump to that match inside the test text editor. Tap again to expand or collapse details.
 
 ## 8. Use replace diff preview
 Enter text in **Replace Preview** to compare the original content and replaced result side by side. This is only a local preview and does not send data anywhere.
 
-## 9. Export files
+## 9. Copy or export outputs
+- Click **Copy Result** to copy the full result summary
+- Click **Copy Highlighted Text** to copy the highlighted preview text
+- Click **Copy Replaced Text** to copy replaced output
 - Click **Export Result** to download the current result summary as `result.txt`
 - Click **Export Replace All** to download replaced output as `replace_result.txt`
 

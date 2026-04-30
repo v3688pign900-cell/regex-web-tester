@@ -93,6 +93,11 @@
           <button type="button" id="export-replace-btn">Export Replace All</button>
         </div>
 
+        <div class="actions secondary-actions">
+          <button type="button" id="copy-highlighted-btn" class="secondary-btn">Copy Highlighted Text</button>
+          <button type="button" id="copy-replaced-btn" class="secondary-btn">Copy Replaced Text</button>
+        </div>
+
         <p class="status" id="status-message" aria-live="polite">Ready.</p>
       </section>
 
@@ -127,10 +132,32 @@
           <p id="match-count">Matches: 0</p>
         </div>
 
-        <label class="field">
-          <span class="field-label">Filter Results</span>
-          <input id="result-filter" class="text-input" type="text" placeholder="Filter by match text or group value" aria-label="Filter result cards" />
-        </label>
+        <div class="results-tools">
+          <label class="field results-tool-field">
+            <span class="field-label">Filter Results</span>
+            <input id="result-filter" class="text-input" type="text" placeholder="Filter by match text or group value" aria-label="Filter result cards" />
+          </label>
+          <label class="field results-tool-field">
+            <span class="field-label">Sort Results</span>
+            <select id="result-sort" class="text-input" aria-label="Sort result cards">
+              <option value="index-asc">Index ↑</option>
+              <option value="index-desc">Index ↓</option>
+              <option value="text-asc">Text A→Z</option>
+              <option value="text-desc">Text Z→A</option>
+              <option value="length-desc">Length ↓</option>
+            </select>
+          </label>
+          <label class="field results-tool-field">
+            <span class="field-label">Group By</span>
+            <select id="result-group" class="text-input" aria-label="Group result cards">
+              <option value="none">None</option>
+              <option value="length">Match length</option>
+              <option value="first-char">First character</option>
+            </select>
+          </label>
+        </div>
+
+        <p id="replace-count" class="field-hint">Replace count: 0</p>
 
         <div class="highlight-box code-surface" id="highlight-output" aria-label="Highlighted results">
           <span class="placeholder">Matched text will be highlighted here.</span>

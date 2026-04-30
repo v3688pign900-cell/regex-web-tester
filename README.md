@@ -26,12 +26,16 @@ Regex Web Tester is a lightweight browser-based tool for testing regular express
 - Test text input with line numbers
 - Flags: `g`, `i`, `m` with built-in guidance
 - Match count summary
+- Replace count summary
 - Search and filter for result cards
+- Result sorting and grouping
+- Zero-length match labeling
 - Click-to-jump match list with expand/collapse details
 - Captured group display
 - Named group display
 - Highlighted matches in the source text
 - Side-by-side original vs replaced preview
+- Copy highlighted text and replaced text
 - Export of match result summary and replace-all preview output
 - Keyboard shortcuts for example load, clear, and copy
 - Dark / light theme switch

@@ -5,7 +5,7 @@
 - Regex input area with template chips, dataset selector, validator hints, flag controls, inline flag help, and action buttons
 - Optional replace preview input
 - Large IDE-style text area for sample text with line numbers
-- Result area with filter box, summary, highlight view, side-by-side replace diff, and expandable match cards
+- Result area with filter box, sort/group controls, replace count, highlight view, side-by-side replace diff, and expandable match cards
 - Cheat sheet area for quick regex reference
 
 ## Responsive behavior
@@ -22,12 +22,15 @@
   - matched text
   - start index
   - end index
+  - zero-length badge when needed
   - captured groups if present
   - named groups if present
 - Replace preview shows original and replaced output side by side
+- Replace count mirrors how many matches would be replaced
 - Match cards can move focus to the matching range inside the text area
 - Match cards support expand/collapse for details
 - Result filtering works on match text and group values
+- Sorting and grouping help organize larger result sets
 - Replace-all export downloads the replaced output as a local text file
 
 ## Keyboard shortcuts and accessibility
@@ -40,4 +43,5 @@
 ## Error handling
 - Invalid regex patterns are caught with `try/catch`
 - Validator hints explain common mistakes such as outer slashes or overly broad patterns
+- Zero-length matches are marked explicitly to avoid confusion
 - The page continues working and shows the error message in the status/result area
