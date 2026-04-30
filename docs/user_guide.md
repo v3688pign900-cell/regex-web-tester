@@ -9,7 +9,7 @@ Examples:
 - `[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}`
 
 ## 2. Paste test text
-Paste plain sample text into the **Test Text** area.
+Paste plain sample text into the **Test Text** area. Line numbers are shown on the left side for easier reading.
 
 ## 3. Use flags
 - `g`: find all matches
@@ -27,8 +27,11 @@ The **Results** section shows:
 - end index
 - captured groups, if available
 
-## 5. Export `result.txt`
+## 5. Use replace preview
+Enter text in **Replace Preview** to see how the current regex would replace matches. This is only a local preview and does not send data anywhere.
+
+## 6. Export `result.txt`
 Click **Export Result** to download the current result summary as `result.txt`.
 
-## 6. Handle regex errors
+## 7. Handle regex errors
 If the regex pattern is invalid, the tool shows the error message on screen. Update the pattern and the page will continue working without a refresh.

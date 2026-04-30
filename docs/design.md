@@ -3,11 +3,13 @@
 ## Layout
 - Header with tool name and privacy statement
 - Regex input area with flag controls and action buttons
-- Large text area for sample text
-- Result area with summary, highlight view, and detailed match cards
+- Optional replace preview input
+- Large text area for sample text with line numbers
+- Result area with summary, highlight view, replace preview, and detailed match cards
+- Cheat sheet area for quick regex reference
 
 ## Responsive behavior
-- Desktop: input and text panels can sit in a two-column layout, results span full width
+- Desktop: input and text panels can sit in a two-column layout, results and cheat sheet span full width
 - Mobile: all sections stack into a single column
 - Buttons remain large enough for touch interaction
 - No horizontal scrolling
@@ -20,6 +22,7 @@
   - start index
   - end index
   - captured groups if present
+- Replace preview applies the current regex and replacement string locally in the browser
 
 ## Error handling
 - Invalid regex patterns are caught with `try/catch`
