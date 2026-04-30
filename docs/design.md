@@ -4,7 +4,7 @@
 - Header with tool name and privacy statement
 - Regex input area with flag controls and action buttons
 - Optional replace preview input
-- Large text area for sample text with line numbers
+- Large IDE-style text area for sample text with line numbers
 - Result area with summary, highlight view, replace preview, and detailed match cards
 - Cheat sheet area for quick regex reference
 
@@ -22,7 +22,9 @@
   - start index
   - end index
   - captured groups if present
+  - named groups if present
 - Replace preview applies the current regex and replacement string locally in the browser
+- Replace-all export downloads the replaced output as a local text file
 
 ## Error handling
 - Invalid regex patterns are caught with `try/catch`

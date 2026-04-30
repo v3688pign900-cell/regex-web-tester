@@ -18,11 +18,16 @@
       </header>
 
       <section class="panel controls-panel" aria-label="Regex input area">
+        <div class="panel-title-row">
+          <span class="panel-badge">Pattern</span>
+          <span class="field-hint">Browser-only regex testing</span>
+        </div>
+
         <label class="field">
           <span class="field-label">Regex Pattern</span>
           <input
             id="regex-input"
-            class="text-input"
+            class="text-input code-surface"
             type="text"
             inputmode="text"
             spellcheck="false"
@@ -31,7 +36,7 @@
           />
         </label>
 
-        <fieldset class="flags-group">
+        <fieldset class="flags-group code-surface">
           <legend>Flags</legend>
           <label><input type="checkbox" id="flag-g" /> g</label>
           <label><input type="checkbox" id="flag-i" /> i</label>
@@ -42,7 +47,7 @@
           <span class="field-label">Replace Preview (optional)</span>
           <input
             id="replace-input"
-            class="text-input"
+            class="text-input code-surface"
             type="text"
             inputmode="text"
             spellcheck="false"
@@ -56,6 +61,7 @@
           <button type="button" id="clear-btn">Clear</button>
           <button type="button" id="copy-btn">Copy Result</button>
           <button type="button" id="export-btn">Export Result</button>
+          <button type="button" id="export-replace-btn">Export Replace All</button>
         </div>
 
         <p class="status" id="status-message" aria-live="polite">Ready.</p>
@@ -66,14 +72,22 @@
           <span class="field-label">Test Text</span>
           <span class="field-hint">Line numbers update automatically.</span>
         </div>
-        <div class="editor-wrap">
-          <div class="line-numbers" id="line-numbers" aria-hidden="true">1</div>
-          <textarea
-            id="test-text"
-            class="textarea-input with-lines"
-            spellcheck="false"
-            placeholder="Paste or type sample text here."
-          ></textarea>
+        <div class="editor-shell code-surface">
+          <div class="editor-toolbar">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span class="editor-title">local-input.txt</span>
+          </div>
+          <div class="editor-wrap">
+            <div class="line-numbers" id="line-numbers" aria-hidden="true">1</div>
+            <textarea
+              id="test-text"
+              class="textarea-input with-lines"
+              spellcheck="false"
+              placeholder="Paste or type sample text here."
+            ></textarea>
+          </div>
         </div>
       </section>
 
@@ -83,7 +97,7 @@
           <p id="match-count">Matches: 0</p>
         </div>
 
-        <div class="highlight-box" id="highlight-output" aria-label="Highlighted results">
+        <div class="highlight-box code-surface" id="highlight-output" aria-label="Highlighted results">
           <span class="placeholder">Matched text will be highlighted here.</span>
         </div>
 
@@ -92,7 +106,7 @@
             <h3>Replace Preview</h3>
             <span class="field-hint">Preview only. No data leaves the browser.</span>
           </div>
-          <pre class="replace-output" id="replace-output">Replacement preview will appear here.</pre>
+          <pre class="replace-output code-surface" id="replace-output">Replacement preview will appear here.</pre>
         </div>
 
         <div class="result-list" id="result-list" aria-live="polite">
@@ -116,7 +130,7 @@
           <article class="cheat-card"><strong>$</strong><span>end of line</span></article>
           <article class="cheat-card"><strong>[abc]</strong><span>one of a, b, c</span></article>
           <article class="cheat-card"><strong>(...)</strong><span>capturing group</span></article>
-          <article class="cheat-card"><strong>|</strong><span>OR condition</span></article>
+          <article class="cheat-card"><strong>(?&lt;name&gt;...)</strong><span>named group</span></article>
           <article class="cheat-card"><strong>\b</strong><span>word boundary</span></article>
         </div>
       </section>

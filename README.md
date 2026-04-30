@@ -25,11 +25,13 @@ Regex Web Tester is a lightweight browser-based tool for testing regular express
 - Match count summary
 - Match list with start and end index
 - Captured group display
+- Named group display
 - Highlighted matches in the source text
 - Replace preview with user-defined replacement text
+- Export of match result summary and replace-all preview output
 - Regex error handling without page crash
-- Clear, Copy Result, and Export Result actions
-- Multiple generic example presets
+- Clear, Copy Result, Export Result, and Export Replace All actions
+- Multiple generic example presets including URL, phone, and date formats
 - Built-in regex cheat sheet
 - Responsive layout for mobile, tablet, and desktop
 

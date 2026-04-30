@@ -13,6 +13,7 @@ const resultList = document.getElementById('result-list');
 const clearBtn = document.getElementById('clear-btn');
 const copyBtn = document.getElementById('copy-btn');
 const exportBtn = document.getElementById('export-btn');
+const exportReplaceBtn = document.getElementById('export-replace-btn');
 const exampleBtn = document.getElementById('example-btn');
 
 const exampleDataList = [
@@ -48,6 +49,36 @@ const exampleDataList = [
     text: [
       'Contact alpha.team@example.com for support.',
       'Backup contact: user_02@test-mail.org'
+    ].join('\n')
+  },
+  {
+    label: 'URL',
+    pattern: 'https?:\\/\\/[\\w.-]+(?:\\/[\\w./?%&=-]*)?',
+    flags: { g: true, i: true, m: false },
+    replace: '[URL]',
+    text: [
+      'Docs: https://example.com/docs/start',
+      'Status: http://status.example.net/health?full=true'
+    ].join('\n')
+  },
+  {
+    label: 'Phone number',
+    pattern: '(?:\\+?\\d{1,3}[ -]?)?(?:\\(?\\d{2,4}\\)?[ -]?)?\\d{3,4}[ -]?\\d{4}',
+    flags: { g: true, i: false, m: false },
+    replace: '[PHONE]',
+    text: [
+      'Call +1 555 123 4567 for sales.',
+      'Office line: (02) 2345-6789'
+    ].join('\n')
+  },
+  {
+    label: 'Date',
+    pattern: '(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})',
+    flags: { g: true, i: false, m: false },
+    replace: '$<day>/$<month>/$<year>',
+    text: [
+      'Release date: 2026-04-30',
+      'Review date: 2026-05-12'
     ].join('\n')
   }
 ];
@@ -121,7 +152,8 @@ function findMatches(regex, text) {
         text: found[0],
         index: found.index,
         endIndex: found.index + found[0].length,
-        groups: found.slice(1)
+        groups: found.slice(1),
+        namedGroups: found.groups || {}
       });
 
       if (found[0] === '') {
@@ -135,7 +167,8 @@ function findMatches(regex, text) {
         text: found[0],
         index: found.index,
         endIndex: found.index + found[0].length,
-        groups: found.slice(1)
+        groups: found.slice(1),
+        namedGroups: found.groups || {}
       });
     }
   }
@@ -167,19 +200,21 @@ function renderHighlight(text, matches) {
   highlightOutput.innerHTML = parts.join('');
 }
 
-function renderReplacePreview(text, regex) {
+function getReplacePreviewText(text, regex) {
   if (!text) {
-    replaceOutput.textContent = 'Replacement preview will appear here.';
-    return;
+    return 'Replacement preview will appear here.';
   }
 
   if (!replaceInput.value) {
-    replaceOutput.textContent = 'Enter a replacement string to preview the replaced result.';
-    return;
+    return 'Enter a replacement string to preview the replaced result.';
   }
 
   const safeRegex = regex.global ? cloneRegex(regex) : new RegExp(regex.source, regex.flags.includes('g') ? regex.flags : `${regex.flags}g`);
-  replaceOutput.textContent = text.replace(safeRegex, replaceInput.value);
+  return text.replace(safeRegex, replaceInput.value);
+}
+
+function renderReplacePreview(text, regex) {
+  replaceOutput.textContent = getReplacePreviewText(text, regex);
 }
 
 function buildResultText(matches) {
@@ -198,6 +233,13 @@ function buildResultText(matches) {
     if (match.groups.length > 0) {
       match.groups.forEach((group, groupIndex) => {
         lines.push(`group ${groupIndex + 1}: ${group === undefined ? '' : group}`);
+      });
+    }
+
+    const namedEntries = Object.entries(match.namedGroups);
+    if (namedEntries.length > 0) {
+      namedEntries.forEach(([name, value]) => {
+        lines.push(`named group ${name}: ${value === undefined ? '' : value}`);
       });
     }
   });
@@ -227,11 +269,19 @@ function renderResults(matches) {
             .join('')}</ul>`
         : '<div class="result-meta">Matched group: none</div>';
 
+      const namedEntries = Object.entries(match.namedGroups);
+      const namedGroupMarkup = namedEntries.length > 0
+        ? `<div class="named-group-box"><strong class="group-title">Named groups</strong>${namedEntries
+            .map(([name, value]) => `<div>${escapeHtml(name)}: <span class="code-inline">${escapeHtml(value === undefined ? '' : value)}</span></div>`)
+            .join('')}</div>`
+        : '';
+
       return `
         <article class="result-item">
           <strong>#${index + 1} <span class="code-inline">${escapeHtml(match.text)}</span></strong>
           <div class="result-meta">start index: ${match.index} | end index: ${match.endIndex}</div>
           ${groupsMarkup}
+          ${namedGroupMarkup}
         </article>
       `;
     })
@@ -306,6 +356,18 @@ async function copyResults() {
   }
 }
 
+function downloadTextFile(filename, content) {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 function exportResults() {
   const pattern = regexInput.value;
   if (!pattern) {
@@ -318,18 +380,31 @@ function exportResults() {
     const matches = findMatches(cloneRegex(regex), testText.value);
     renderReplacePreview(testText.value, regex);
     const resultText = buildResultText(matches);
-    const blob = new Blob([resultText], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'result.txt';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
+    downloadTextFile('result.txt', resultText);
     setStatus('Exported result.txt.', 'success');
   } catch (error) {
     setStatus(`Export failed: ${error.message}`, 'error');
+  }
+}
+
+function exportReplaceAll() {
+  const pattern = regexInput.value;
+  if (!pattern) {
+    setStatus('Add a regex pattern before exporting replaced text.', '');
+    return;
+  }
+
+  try {
+    const regex = buildRegex();
+    const replacedText = getReplacePreviewText(testText.value, regex);
+    if (!replaceInput.value) {
+      setStatus('Enter replacement text before exporting replaced output.', '');
+      return;
+    }
+    downloadTextFile('replace_result.txt', replacedText);
+    setStatus('Exported replace_result.txt.', 'success');
+  } catch (error) {
+    setStatus(`Replace export failed: ${error.message}`, 'error');
   }
 }
 
@@ -356,6 +431,7 @@ testText.addEventListener('scroll', syncLineNumberScroll);
 clearBtn.addEventListener('click', clearAll);
 copyBtn.addEventListener('click', copyResults);
 exportBtn.addEventListener('click', exportResults);
+exportReplaceBtn.addEventListener('click', exportReplaceAll);
 exampleBtn.addEventListener('click', loadExample);
 
 updateLineNumbers();
