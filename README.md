@@ -20,15 +20,18 @@ Regex Web Tester is a lightweight browser-based tool for testing regular express
 
 ## Features
 - Regex pattern input
+- Built-in regex template chips
 - Test text input with line numbers
 - Flags: `g`, `i`, `m` with built-in guidance
 - Match count summary
-- Click-to-jump match list with start and end index
+- Click-to-jump match list with expand/collapse details
 - Captured group display
 - Named group display
 - Highlighted matches in the source text
 - Side-by-side original vs replaced preview
 - Export of match result summary and replace-all preview output
+- Keyboard shortcuts for example load, clear, and copy
+- Dark / light theme switch
 - Regex error handling without page crash
 - Clear, Copy Result, Export Result, and Export Replace All actions
 - Multiple generic example presets including URL, phone, and date formats

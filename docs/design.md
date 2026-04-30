@@ -1,11 +1,11 @@
 # Design
 
 ## Layout
-- Header with tool name and privacy statement
-- Regex input area with flag controls, inline flag help, and action buttons
+- Header with tool name, privacy statement, and theme switch
+- Regex input area with template chips, flag controls, inline flag help, and action buttons
 - Optional replace preview input
 - Large IDE-style text area for sample text with line numbers
-- Result area with summary, highlight view, side-by-side replace diff, and detailed match cards
+- Result area with summary, highlight view, side-by-side replace diff, and expandable match cards
 - Cheat sheet area for quick regex reference
 
 ## Responsive behavior
@@ -26,7 +26,13 @@
   - named groups if present
 - Replace preview shows original and replaced output side by side
 - Match cards can move focus to the matching range inside the text area
+- Match cards support expand/collapse for details
 - Replace-all export downloads the replaced output as a local text file
+
+## Keyboard shortcuts
+- `Ctrl/Cmd + Enter`: load next example
+- `Ctrl/Cmd + L`: clear fields
+- `Ctrl/Cmd + Shift + C`: copy result summary
 
 ## Error handling
 - Invalid regex patterns are caught with `try/catch`

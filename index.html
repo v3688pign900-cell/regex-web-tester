@@ -13,14 +13,24 @@
   <body>
     <main class="page">
       <header class="hero">
-        <h1>Regex Web Tester</h1>
-        <p>Test regex safely in your browser. No text or pattern data is uploaded.</p>
+        <div class="hero-row">
+          <div>
+            <h1>Regex Web Tester</h1>
+            <p>Test regex safely in your browser. No text or pattern data is uploaded.</p>
+          </div>
+          <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">🌙 Dark</button>
+        </div>
       </header>
 
       <section class="panel controls-panel" aria-label="Regex input area">
         <div class="panel-title-row">
           <span class="panel-badge">Pattern</span>
           <span class="field-hint">Browser-only regex testing</span>
+        </div>
+
+        <div class="template-bar">
+          <span class="field-label">Templates</span>
+          <div class="template-actions" id="template-actions"></div>
         </div>
 
         <label class="field">
@@ -47,6 +57,7 @@
           <span><strong>g</strong> find all matches</span>
           <span><strong>i</strong> ignore case</span>
           <span><strong>m</strong> multiline mode</span>
+          <span><strong>Shortcut</strong> Ctrl/Cmd + Enter run example cycle</span>
         </div>
 
         <label class="field">

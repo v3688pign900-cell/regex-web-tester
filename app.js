@@ -16,6 +16,15 @@ const copyBtn = document.getElementById('copy-btn');
 const exportBtn = document.getElementById('export-btn');
 const exportReplaceBtn = document.getElementById('export-replace-btn');
 const exampleBtn = document.getElementById('example-btn');
+const themeToggle = document.getElementById('theme-toggle');
+const templateActions = document.getElementById('template-actions');
+
+const templatePresets = [
+  { label: 'Status', pattern: 'ERROR|WARN|FAIL', flags: { g: true, i: false, m: false }, replace: '[ALERT]' },
+  { label: 'IP', pattern: '\\b\\d{1,3}(\\.\\d{1,3}){3}\\b', flags: { g: true, i: false, m: false }, replace: '[IP]' },
+  { label: 'Email', pattern: '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}', flags: { g: true, i: true, m: false }, replace: '[EMAIL]' },
+  { label: 'Date', pattern: '(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})', flags: { g: true, i: false, m: false }, replace: '$<day>/$<month>/$<year>' }
+];
 
 const exampleDataList = [
   {
@@ -23,69 +32,48 @@ const exampleDataList = [
     pattern: 'ERROR|WARN|FAIL',
     flags: { g: true, i: false, m: false },
     replace: '[ALERT]',
-    text: [
-      'INFO Startup complete',
-      'WARN Disk usage is above 80%',
-      'ERROR Unable to open file',
-      'FAIL Retry limit reached',
-      'INFO Shutdown complete'
-    ].join('\n')
+    text: ['INFO Startup complete', 'WARN Disk usage is above 80%', 'ERROR Unable to open file', 'FAIL Retry limit reached', 'INFO Shutdown complete'].join('\n')
   },
   {
     label: 'IP address',
     pattern: '\\b\\d{1,3}(\\.\\d{1,3}){3}\\b',
     flags: { g: true, i: false, m: false },
     replace: '[IP]',
-    text: [
-      'Primary server: 192.168.10.25',
-      'Fallback server: 10.0.0.8',
-      'Comment: localhost is not an IP match here.'
-    ].join('\n')
+    text: ['Primary server: 192.168.10.25', 'Fallback server: 10.0.0.8', 'Comment: localhost is not an IP match here.'].join('\n')
   },
   {
     label: 'Email address',
     pattern: '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}',
     flags: { g: true, i: true, m: false },
     replace: '[EMAIL]',
-    text: [
-      'Contact alpha.team@example.com for support.',
-      'Backup contact: user_02@test-mail.org'
-    ].join('\n')
+    text: ['Contact alpha.team@example.com for support.', 'Backup contact: user_02@test-mail.org'].join('\n')
   },
   {
     label: 'URL',
     pattern: 'https?:\\/\\/[\\w.-]+(?:\\/[\\w./?%&=-]*)?',
     flags: { g: true, i: true, m: false },
     replace: '[URL]',
-    text: [
-      'Docs: https://example.com/docs/start',
-      'Status: http://status.example.net/health?full=true'
-    ].join('\n')
+    text: ['Docs: https://example.com/docs/start', 'Status: http://status.example.net/health?full=true'].join('\n')
   },
   {
     label: 'Phone number',
     pattern: '(?:\\+?\\d{1,3}[ -]?)?(?:\\(?\\d{2,4}\\)?[ -]?)?\\d{3,4}[ -]?\\d{4}',
     flags: { g: true, i: false, m: false },
     replace: '[PHONE]',
-    text: [
-      'Call +1 555 123 4567 for sales.',
-      'Office line: (02) 2345-6789'
-    ].join('\n')
+    text: ['Call +1 555 123 4567 for sales.', 'Office line: (02) 2345-6789'].join('\n')
   },
   {
     label: 'Date',
     pattern: '(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})',
     flags: { g: true, i: false, m: false },
     replace: '$<day>/$<month>/$<year>',
-    text: [
-      'Release date: 2026-04-30',
-      'Review date: 2026-05-12'
-    ].join('\n')
+    text: ['Release date: 2026-04-30', 'Review date: 2026-05-12'].join('\n')
   }
 ];
 
 let exampleIndex = 0;
 let lastMatches = [];
+let currentTheme = 'light';
 
 function escapeHtml(text) {
   return text
@@ -97,19 +85,13 @@ function escapeHtml(text) {
 }
 
 function getFlags() {
-  return [
-    flagG.checked ? 'g' : '',
-    flagI.checked ? 'i' : '',
-    flagM.checked ? 'm' : ''
-  ].join('');
+  return [flagG.checked ? 'g' : '', flagI.checked ? 'i' : '', flagM.checked ? 'm' : ''].join('');
 }
 
 function setStatus(message, type) {
   statusMessage.textContent = message;
   statusMessage.className = 'status';
-  if (type) {
-    statusMessage.classList.add(type);
-  }
+  if (type) statusMessage.classList.add(type);
 }
 
 function renderEmptyState(message) {
@@ -131,14 +113,8 @@ function syncLineNumberScroll() {
 }
 
 function buildRegex() {
-  const pattern = regexInput.value;
-  const flags = getFlags();
-
-  if (!pattern) {
-    return null;
-  }
-
-  return new RegExp(pattern, flags);
+  if (!regexInput.value) return null;
+  return new RegExp(regexInput.value, getFlags());
 }
 
 function cloneRegex(regex) {
@@ -147,36 +123,17 @@ function cloneRegex(regex) {
 
 function findMatches(regex, text) {
   const matches = [];
-
   if (regex.global) {
     regex.lastIndex = 0;
     let found;
     while ((found = regex.exec(text)) !== null) {
-      matches.push({
-        text: found[0],
-        index: found.index,
-        endIndex: found.index + found[0].length,
-        groups: found.slice(1),
-        namedGroups: found.groups || {}
-      });
-
-      if (found[0] === '') {
-        regex.lastIndex += 1;
-      }
+      matches.push({ text: found[0], index: found.index, endIndex: found.index + found[0].length, groups: found.slice(1), namedGroups: found.groups || {} });
+      if (found[0] === '') regex.lastIndex += 1;
     }
   } else {
     const found = regex.exec(text);
-    if (found) {
-      matches.push({
-        text: found[0],
-        index: found.index,
-        endIndex: found.index + found[0].length,
-        groups: found.slice(1),
-        namedGroups: found.groups || {}
-      });
-    }
+    if (found) matches.push({ text: found[0], index: found.index, endIndex: found.index + found[0].length, groups: found.slice(1), namedGroups: found.groups || {} });
   }
-
   return matches;
 }
 
@@ -185,34 +142,24 @@ function renderHighlight(text, matches) {
     highlightOutput.innerHTML = '<span class="placeholder">Paste text to see highlighted matches.</span>';
     return;
   }
-
   if (matches.length === 0) {
     highlightOutput.textContent = text;
     return;
   }
-
   let cursor = 0;
   const parts = [];
-
   matches.forEach((match) => {
     parts.push(escapeHtml(text.slice(cursor, match.index)));
     parts.push(`<mark class="match-chip">${escapeHtml(text.slice(match.index, match.endIndex))}</mark>`);
     cursor = match.endIndex;
   });
-
   parts.push(escapeHtml(text.slice(cursor)));
   highlightOutput.innerHTML = parts.join('');
 }
 
 function getReplacePreviewText(text, regex) {
-  if (!text) {
-    return 'Replacement preview will appear here.';
-  }
-
-  if (!replaceInput.value) {
-    return 'Enter a replacement string to preview the replaced result.';
-  }
-
+  if (!text) return 'Replacement preview will appear here.';
+  if (!replaceInput.value) return 'Enter a replacement string to preview the replaced result.';
   const safeRegex = regex.global ? cloneRegex(regex) : new RegExp(regex.source, regex.flags.includes('g') ? regex.flags : `${regex.flags}g`);
   return text.replace(safeRegex, replaceInput.value);
 }
@@ -223,93 +170,55 @@ function renderReplacePreview(text, regex) {
 }
 
 function buildResultText(matches) {
-  if (matches.length === 0) {
-    return 'Matches: 0';
-  }
-
+  if (matches.length === 0) return 'Matches: 0';
   const lines = [`Matches: ${matches.length}`];
-
   matches.forEach((match, index) => {
-    lines.push('');
-    lines.push(`#${index + 1}`);
-    lines.push(`match text: ${match.text}`);
-    lines.push(`start index: ${match.index}`);
-    lines.push(`end index: ${match.endIndex}`);
-    if (match.groups.length > 0) {
-      match.groups.forEach((group, groupIndex) => {
-        lines.push(`group ${groupIndex + 1}: ${group === undefined ? '' : group}`);
-      });
-    }
-
-    const namedEntries = Object.entries(match.namedGroups);
-    if (namedEntries.length > 0) {
-      namedEntries.forEach(([name, value]) => {
-        lines.push(`named group ${name}: ${value === undefined ? '' : value}`);
-      });
-    }
+    lines.push('', `#${index + 1}`, `match text: ${match.text}`, `start index: ${match.index}`, `end index: ${match.endIndex}`);
+    if (match.groups.length > 0) match.groups.forEach((group, groupIndex) => lines.push(`group ${groupIndex + 1}: ${group === undefined ? '' : group}`));
+    Object.entries(match.namedGroups).forEach(([name, value]) => lines.push(`named group ${name}: ${value === undefined ? '' : value}`));
   });
-
-  if (replaceInput.value) {
-    lines.push('');
-    lines.push('replace preview:');
-    lines.push(replaceOutput.textContent);
-  }
-
+  if (replaceInput.value) lines.push('', 'replace preview:', replaceOutput.textContent);
   return lines.join('\n');
 }
 
 function renderResults(matches) {
   lastMatches = matches;
   matchCount.textContent = `Matches: ${matches.length}`;
-
   if (matches.length === 0) {
     resultList.innerHTML = '<div class="empty-state">No matches found.</div>';
     return;
   }
-
-  resultList.innerHTML = matches
-    .map((match, index) => {
-      const groupsMarkup = match.groups.length > 0
-        ? `<ul class="group-list">${match.groups
-            .map((group, groupIndex) => `<li>Group ${groupIndex + 1}: <span class="code-inline">${escapeHtml(group === undefined ? '' : group)}</span></li>`)
-            .join('')}</ul>`
-        : '<div class="result-meta">Matched group: none</div>';
-
-      const namedEntries = Object.entries(match.namedGroups);
-      const namedGroupMarkup = namedEntries.length > 0
-        ? `<div class="named-group-box"><strong class="group-title">Named groups</strong>${namedEntries
-            .map(([name, value]) => `<div>${escapeHtml(name)}: <span class="code-inline">${escapeHtml(value === undefined ? '' : value)}</span></div>`)
-            .join('')}</div>`
-        : '';
-
-      return `
-        <article class="result-item" data-match-index="${index}" tabindex="0">
-          <strong>#${index + 1} <span class="code-inline">${escapeHtml(match.text)}</span></strong>
-          <div class="result-meta">start index: ${match.index} | end index: ${match.endIndex}</div>
+  resultList.innerHTML = matches.map((match, index) => {
+    const groupsMarkup = match.groups.length > 0
+      ? `<ul class="group-list">${match.groups.map((group, groupIndex) => `<li>Group ${groupIndex + 1}: <span class="code-inline">${escapeHtml(group === undefined ? '' : group)}</span></li>`).join('')}</ul>`
+      : '<div class="result-meta">Matched group: none</div>';
+    const namedEntries = Object.entries(match.namedGroups);
+    const namedGroupMarkup = namedEntries.length > 0
+      ? `<div class="named-group-box"><strong class="group-title">Named groups</strong>${namedEntries.map(([name, value]) => `<div>${escapeHtml(name)}: <span class="code-inline">${escapeHtml(value === undefined ? '' : value)}</span></div>`).join('')}</div>`
+      : '';
+    return `
+      <article class="result-item" data-match-index="${index}" tabindex="0">
+        <strong>#${index + 1} <span class="code-inline">${escapeHtml(match.text)}</span></strong>
+        <div class="result-meta">start index: ${match.index} | end index: ${match.endIndex}</div>
+        <div class="result-details">
           ${groupsMarkup}
           ${namedGroupMarkup}
-        </article>
-      `;
-    })
-    .join('');
+        </div>
+      </article>
+    `;
+  }).join('');
 }
 
 function focusMatch(index) {
   const match = lastMatches[index];
-  if (!match) {
-    return;
-  }
-
+  if (!match) return;
   testText.focus();
   testText.setSelectionRange(match.index, match.endIndex);
-
   const beforeSelection = testText.value.slice(0, match.index);
   const lineIndex = beforeSelection.split('\n').length - 1;
   const lineHeight = parseFloat(getComputedStyle(testText).lineHeight) || 25;
-  const scrollTarget = Math.max(0, lineIndex * lineHeight - lineHeight * 2);
-  testText.scrollTop = scrollTarget;
+  testText.scrollTop = Math.max(0, lineIndex * lineHeight - lineHeight * 2);
   syncLineNumberScroll();
-
   resultList.querySelectorAll('.result-item').forEach((item) => item.classList.remove('is-active'));
   const activeItem = resultList.querySelector(`[data-match-index="${index}"]`);
   if (activeItem) {
@@ -318,31 +227,32 @@ function focusMatch(index) {
   }
 }
 
+function toggleMatchDetails(item) {
+  item.classList.toggle('is-open');
+}
+
 function runRegexTest() {
   const pattern = regexInput.value;
   const text = testText.value;
   updateLineNumbers();
   syncLineNumberScroll();
-
   if (!pattern && !text) {
     setStatus('Ready.', '');
     renderEmptyState('No matches yet.');
     return;
   }
-
   if (!pattern) {
     setStatus('Enter a regex pattern to start testing.', '');
     renderEmptyState('Enter a regex pattern to start testing.');
     return;
   }
-
   try {
     const regex = buildRegex();
     const matches = findMatches(cloneRegex(regex), text);
     renderHighlight(text, matches);
     renderReplacePreview(text, regex);
     renderResults(matches);
-    setStatus(`Regex compiled successfully with flags: ${getFlags() || '(none)'}. Tap a result card to jump to the match.`, 'success');
+    setStatus('Regex compiled successfully. Click a result to jump, click again to expand details.', 'success');
   } catch (error) {
     matchCount.textContent = 'Matches: 0';
     highlightOutput.innerHTML = '<span class="placeholder">Regex error. Please fix the pattern and try again.</span>';
@@ -367,20 +277,16 @@ function clearAll() {
 }
 
 async function copyResults() {
-  const pattern = regexInput.value;
-  if (!pattern) {
+  if (!regexInput.value) {
     setStatus('Nothing to copy yet. Add a regex pattern first.', '');
     return;
   }
-
   try {
     const regex = buildRegex();
     const matches = findMatches(cloneRegex(regex), testText.value);
     renderReplacePreview(testText.value, regex);
     const resultText = buildResultText(matches);
-    if (!navigator.clipboard || !navigator.clipboard.writeText) {
-      throw new Error('Clipboard API is not available in this browser.');
-    }
+    if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error('Clipboard API is not available in this browser.');
     await navigator.clipboard.writeText(resultText);
     setStatus('Result copied to clipboard.', 'success');
   } catch (error) {
@@ -401,18 +307,15 @@ function downloadTextFile(filename, content) {
 }
 
 function exportResults() {
-  const pattern = regexInput.value;
-  if (!pattern) {
+  if (!regexInput.value) {
     setStatus('Nothing to export yet. Add a regex pattern first.', '');
     return;
   }
-
   try {
     const regex = buildRegex();
     const matches = findMatches(cloneRegex(regex), testText.value);
     renderReplacePreview(testText.value, regex);
-    const resultText = buildResultText(matches);
-    downloadTextFile('result.txt', resultText);
+    downloadTextFile('result.txt', buildResultText(matches));
     setStatus('Exported result.txt.', 'success');
   } catch (error) {
     setStatus(`Export failed: ${error.message}`, 'error');
@@ -420,20 +323,17 @@ function exportResults() {
 }
 
 function exportReplaceAll() {
-  const pattern = regexInput.value;
-  if (!pattern) {
+  if (!regexInput.value) {
     setStatus('Add a regex pattern before exporting replaced text.', '');
     return;
   }
-
   try {
     const regex = buildRegex();
-    const replacedText = getReplacePreviewText(testText.value, regex);
     if (!replaceInput.value) {
       setStatus('Enter replacement text before exporting replaced output.', '');
       return;
     }
-    downloadTextFile('replace_result.txt', replacedText);
+    downloadTextFile('replace_result.txt', getReplacePreviewText(testText.value, regex));
     setStatus('Exported replace_result.txt.', 'success');
   } catch (error) {
     setStatus(`Replace export failed: ${error.message}`, 'error');
@@ -454,35 +354,76 @@ function loadExample() {
   runRegexTest();
 }
 
+function applyTemplate(preset) {
+  regexInput.value = preset.pattern;
+  replaceInput.value = preset.replace;
+  flagG.checked = preset.flags.g;
+  flagI.checked = preset.flags.i;
+  flagM.checked = preset.flags.m;
+  setStatus(`Applied template: ${preset.label}.`, 'success');
+  runRegexTest();
+}
+
+function renderTemplates() {
+  templateActions.innerHTML = templatePresets.map((preset, index) => `<button type="button" class="template-chip" data-template-index="${index}">${escapeHtml(preset.label)}</button>`).join('');
+}
+
+function toggleTheme() {
+  currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+  document.body.classList.toggle('theme-dark', currentTheme === 'dark');
+  themeToggle.textContent = currentTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+}
+
 [regexInput, replaceInput, testText, flagG, flagI, flagM].forEach((element) => {
   element.addEventListener('input', runRegexTest);
   element.addEventListener('change', runRegexTest);
 });
 
+document.addEventListener('keydown', (event) => {
+  const isMetaRun = (event.ctrlKey || event.metaKey) && event.key === 'Enter';
+  const isMetaClear = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'l';
+  const isMetaCopy = (event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'c';
+  if (isMetaRun) {
+    event.preventDefault();
+    loadExample();
+  } else if (isMetaClear) {
+    event.preventDefault();
+    clearAll();
+  } else if (isMetaCopy) {
+    event.preventDefault();
+    copyResults();
+  }
+});
+
 testText.addEventListener('scroll', syncLineNumberScroll);
 resultList.addEventListener('click', (event) => {
   const item = event.target.closest('.result-item');
-  if (!item) {
-    return;
-  }
-  focusMatch(Number(item.dataset.matchIndex));
+  if (!item) return;
+  const matchIndex = Number(item.dataset.matchIndex);
+  focusMatch(matchIndex);
+  toggleMatchDetails(item);
 });
 resultList.addEventListener('keydown', (event) => {
-  if (event.key !== 'Enter' && event.key !== ' ') {
-    return;
-  }
+  if (event.key !== 'Enter' && event.key !== ' ') return;
   const item = event.target.closest('.result-item');
-  if (!item) {
-    return;
-  }
+  if (!item) return;
   event.preventDefault();
-  focusMatch(Number(item.dataset.matchIndex));
+  const matchIndex = Number(item.dataset.matchIndex);
+  focusMatch(matchIndex);
+  toggleMatchDetails(item);
+});
+templateActions.addEventListener('click', (event) => {
+  const chip = event.target.closest('[data-template-index]');
+  if (!chip) return;
+  applyTemplate(templatePresets[Number(chip.dataset.templateIndex)]);
 });
 clearBtn.addEventListener('click', clearAll);
 copyBtn.addEventListener('click', copyResults);
 exportBtn.addEventListener('click', exportResults);
 exportReplaceBtn.addEventListener('click', exportReplaceAll);
 exampleBtn.addEventListener('click', loadExample);
+themeToggle.addEventListener('click', toggleTheme);
 
+renderTemplates();
 updateLineNumbers();
 renderEmptyState('No matches yet.');

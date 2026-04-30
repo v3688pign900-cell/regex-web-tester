@@ -18,6 +18,20 @@
   --editor-text: #e5edf8;
 }
 
+body.theme-dark {
+  --bg: #020617;
+  --panel: #0f172a;
+  --border: #1e293b;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #60a5fa;
+  --accent-soft: rgba(96, 165, 250, 0.16);
+  --danger-soft: rgba(185, 28, 28, 0.18);
+  --success: #4ade80;
+  --highlight: #facc15;
+  --shadow: 0 20px 44px rgba(2, 6, 23, 0.45);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -30,6 +44,10 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: linear-gradient(180deg, #eff4fb 0%, #f8fafc 100%);
   color: var(--text);
+}
+
+body.theme-dark {
+  background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
 }
 
 body {
@@ -56,6 +74,18 @@ body {
   padding: 22px;
 }
 
+.hero-row,
+.panel-title-row,
+.panel-header-row,
+.results-header,
+.template-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .hero h1 {
   margin: 0 0 8px;
   font-size: clamp(1.75rem, 4vw, 2.5rem);
@@ -75,25 +105,33 @@ body {
   gap: 14px;
 }
 
-.panel-title-row,
-.panel-header-row,
-.results-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.panel-badge {
+.panel-badge,
+.template-chip,
+.theme-toggle {
   display: inline-flex;
   align-items: center;
-  padding: 6px 10px;
+  justify-content: center;
+  padding: 8px 12px;
   border-radius: 999px;
   background: var(--accent-soft);
   color: var(--accent);
   font-size: 0.9rem;
   font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.theme-toggle {
+  cursor: pointer;
+}
+
+.template-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.template-chip {
+  cursor: pointer;
 }
 
 .field,
@@ -115,14 +153,24 @@ body {
 }
 
 .text-input,
+.textarea-input,
+.replace-output,
+.highlight-box,
+.result-item,
+.empty-state,
+.cheat-card,
+.named-group-box {
+  color: var(--text);
+}
+
+.text-input,
 .textarea-input {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 14px 16px;
   font: inherit;
-  color: var(--text);
-  background: #fff;
+  background: var(--panel);
 }
 
 .code-surface {
@@ -132,7 +180,8 @@ body {
 .text-input:focus,
 .textarea-input:focus,
 button:focus-visible,
-input[type='checkbox']:focus-visible {
+input[type='checkbox']:focus-visible,
+.template-chip:focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.24);
   outline-offset: 2px;
 }
@@ -188,11 +237,15 @@ button {
   padding: 10px 12px;
 }
 
-button:hover {
+button:hover,
+.template-chip:hover,
+.theme-toggle:hover {
   opacity: 0.94;
 }
 
-button:active {
+button:active,
+.template-chip:active,
+.theme-toggle:active {
   transform: translateY(1px) scale(0.99);
 }
 
@@ -200,17 +253,17 @@ button:active {
   margin: 0;
   padding: 12px 14px;
   border-radius: 14px;
-  background: #f8fafc;
+  background: rgba(148, 163, 184, 0.12);
   color: var(--muted);
 }
 
 .status.error {
   background: var(--danger-soft);
-  color: var(--danger);
+  color: #ef4444;
 }
 
 .status.success {
-  background: #dcfce7;
+  background: rgba(74, 222, 128, 0.12);
   color: var(--success);
 }
 
@@ -294,7 +347,7 @@ button:active {
 .replace-output {
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: #fff;
+  background: var(--panel);
 }
 
 .highlight-box {
@@ -347,7 +400,7 @@ button:active {
 .named-group-box {
   padding: 14px;
   border-radius: 12px;
-  background: #f8fafc;
+  background: rgba(148, 163, 184, 0.08);
 }
 
 .result-item {
@@ -357,12 +410,21 @@ button:active {
 }
 
 .result-item:hover {
-  background: #eef4fb;
+  background: rgba(96, 165, 250, 0.12);
 }
 
 .result-item.is-active {
   outline: 2px solid rgba(37, 99, 235, 0.24);
-  background: #eaf2ff;
+  background: rgba(96, 165, 250, 0.16);
+}
+
+.result-details {
+  display: none;
+}
+
+.result-item.is-open .result-details {
+  display: grid;
+  gap: 8px;
 }
 
 .result-meta {
@@ -374,6 +436,7 @@ button:active {
   background: var(--highlight);
   border-radius: 4px;
   padding: 0 2px;
+  color: #111827;
 }
 
 .placeholder {
@@ -388,7 +451,7 @@ button:active {
 .named-group-box {
   display: grid;
   gap: 6px;
-  border: 1px dashed #bfdbfe;
+  border: 1px dashed rgba(96, 165, 250, 0.35);
 }
 
 .group-title,
